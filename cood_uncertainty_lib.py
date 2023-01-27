@@ -74,8 +74,6 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
     return results
 
 
-def calc_model_confidences_on_datasets_samples():
-    pass
 
 
 def aggregate_confidences(results_list, axis=None):
