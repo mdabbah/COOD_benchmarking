@@ -1,0 +1,419 @@
+import os
+import sys
+
+import pandas as pd
+import numpy as np
+# import timm
+import torch
+from timm_lib.timm.data import resolve_data_config, create_transform
+import old_timm_lib
+from old_timm_lib.timm.data import resolve_data_config as old_resolve_data_config
+from old_timm_lib.timm.data import create_transform as old_create_transform
+# from timm.data import resolve_data_config, create_transform
+from torchvision import transforms
+import clip
+# To use clip:
+# pip install ftfy regex tqdm
+# pip install git+https://github.com/openai/CLIP.git
+
+from custome_dataset import get_open_img_transforms
+from data_utils import load_model_results, save_model_results, get_results_base_path
+from log_utils import Logger
+
+import torchvision.transforms as tvtf
+
+import timm.models.resnetv2 as timm_bit
+import timm.models.resnet as timm_resnet
+import torchvision.models as torchvision_models
+
+from timm_lib import timm as timm_lib
+
+
+def normalize(a):
+    a = np.array(a)
+    a = (a - np.mean(a)) / np.std(a)
+    return a
+
+
+def to_cpu(tensor):
+    return tensor.detach().cpu().numpy()
+
+
+def args_dict_to_str(args_dict):
+    if args_dict is None or not isinstance(args_dict, dict):
+        return ''
+
+    args_dict_str = ''
+    for k, v in args_dict.items():
+        args_dict_str += f'_{k}-{v}'
+
+    return args_dict_str
+
+
+def get_fc_layer(model):
+    """
+    the worst thing i've ever written :)
+    :param model: trained model
+    :return: the weights of the classification layer in numpy
+    """
+    if hasattr(model, 'fc'):
+        if isinstance(model.fc, torch.nn.Linear):
+            return model.fc.weight.detach().clone().cpu().numpy()
+        if isinstance(model.fc, torch.nn.Conv2d) and model.fc.kernel_size == (1, 1):
+            return model.fc.weight.detach().clone().cpu().numpy()
+
+    if hasattr(model, 'last_linear'):
+        if isinstance(model.last_linear, torch.nn.Linear):
+            return model.last_linear.weight.detach().clone().cpu().numpy()
+
+    if hasattr(model, 'classifier'):
+        if isinstance(model.classifier, torch.nn.Linear):
+            return model.classifier.weight.detach().clone().cpu().numpy()
+
+        if isinstance(model.classifier, torch.nn.Conv2d) and model.classifier.kernel_size == (1, 1):
+            return model.classifier.weight.detach().clone().cpu().numpy()
+
+        if isinstance(model.classifier, torch.nn.Sequential):
+            if isinstance(model, torchvision_models.SqueezeNet):
+                return model.classifier[1].weight.detach().clone().cpu().numpy()
+
+            return model.classifier[-1].weight.detach().clone().cpu().numpy()
+
+        if hasattr(model.classifier, 'fc'):
+            if isinstance(model.classifier.fc, torch.nn.Linear):
+                return model.classifier.fc.detach().clone().cpu().numpy()
+
+    if hasattr(model, 'head'):
+        if isinstance(model.head, torch.nn.Linear):
+            return model.head.weight.detach().clone().cpu().numpy()
+        if hasattr(model.head, 'fc'):
+
+            if isinstance(model.head.fc, torch.nn.Linear):
+                return model.head.fc.detach().clone().cpu().numpy()
+
+            if isinstance(model.head.fc, torch.nn.Conv2d) and model.head.fc.kernel_size == (1, 1):
+                return model.head.fc.weight.detach().clone().cpu().numpy()
+
+        if hasattr(model.head, 'l'):
+            if isinstance(model.head.l, torch.nn.Linear):
+                return model.head.l.detach().clone().cpu().numpy()
+
+    if hasattr(model, 'classif'):
+        if isinstance(model.classif, torch.nn.Linear):
+            return model.classif.weight.detach().clone().cpu().numpy()
+
+    return False
+
+
+def get_timm_transforms(model):
+    config = resolve_data_config({}, model=model)
+    open_img_transforms = get_open_img_transforms()
+    transform = transforms.Compose([open_img_transforms, create_transform(**config)])
+    return transform
+
+
+def log_ood_results(model_info, ood_results, results_file_tag, percentiles):
+
+    model_results = pd.DataFrame(ood_results)
+    model_results['model_name'] = model_info['model_name']
+    model_results['kappa'] = model_info['kappa']
+    model_results['percentile'] = percentiles
+    model_results['severity_level'] = np.arange(len(percentiles))
+
+
+    model_name = model_info['model_name']
+
+    base_folder = get_results_base_path()
+    model_dir = os.path.join(base_folder, model_name)
+    private_log_path = os.path.join(model_dir, f'{model_name}_{results_file_tag}.csv')
+    model_results.to_csv(private_log_path, index=False)
+
+    return model_results
+
+
+def aggregate_confidences(results_list, axis=None):
+    confidences = {k: [] for k in results_list[0].keys()}
+
+    for r in results_list:
+        for k, v in confidences.items():
+            v.extend(r[k])
+
+    confidences = {k: np.concatenate(v, axis=axis) for k, v in confidences.items()}
+    return confidences
+
+
+def fix(results):
+    results_list = [results]
+    confidences = aggregate_confidences(results_list)
+    return confidences
+
+
+def fix_model(model_name):
+    name_2_load = 'stats_mcp_entropy_all_val_0'
+    res = load_model_results(model_name, name_2_load)
+    result = fix(res)
+    assert len(result['labels']) / 50 == 15293
+    save_name = 'stats_mcp_entropy_all_val'
+    save_model_results(model_name, result, save_name)
+
+
+def gather_results(model_name, world_size, tag):
+    results_list = []
+    for r in range(world_size):
+        res = load_model_results(model_name, f'{tag}_{r}')
+        assert res is not None
+        results_list.append(res)
+
+    return results_list
+
+
+def get_embedding_size(model_name):
+    # model = timm.create_model(model_name, pretrained=False)
+    # return model.num_features
+    # turn on when you finally add torchvision integration
+    try:
+        model = create_model_and_transforms(model_name, False)[0]
+        try:
+            return model.num_features
+        except Exception:
+            return get_fc_layer(model).shape[1]
+    except:
+        return -1
+
+
+def translate_model_name(model_name, to_our_convention=False):
+    """"
+    translates from timm convention to our convention or vise-versa depending on to_torchvision value
+    our convention adds '_torchvision' suffix to  torchvision models and removes 'tv_' prefix if exists.
+    """
+    torchvision_duplicated_models_in_timms = ['resnext101_32x8d', 'tv_densenet121', 'tv_resnet101', 'tv_resnet152',
+                                              'tv_resnet34', 'tv_resnet50', 'tv_resnext50_32x4d', 'vgg11', 'vgg11_bn',
+                                              'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn', 'vgg19', 'vgg19_bn',
+                                              'wide_resnet101_2', 'densenet169', 'densenet201', 'densenet161',
+                                              'inception_v3', 'resnet18']
+    if to_our_convention:
+        if model_name in torchvision_duplicated_models_in_timms:
+            return model_name.replace('tv_', '') + '_torchvision'
+        return model_name
+    else:
+        if model_name.replace('_torchvision', '') in torchvision_duplicated_models_in_timms:
+            return model_name.replace('_torchvision', '')
+        if 'tv_' + model_name.replace('_torchvision', '') in torchvision_duplicated_models_in_timms:
+            return 'tv_' + model_name.replace('_torchvision', '')
+        return model_name
+
+
+def translate_models_names(models_names, to_our_convention=False):
+    models_names_translated = [translate_model_name(model_name, to_our_convention) for model_name in models_names]
+    return models_names_translated
+
+
+def _create_resnetv2_distilled_160_from224teacher(variant, pretrained=True, **kwargs):
+    feature_cfg = dict(flatten_sequential=True)
+    return timm_bit.build_model_with_cfg(
+        timm_bit.ResNetV2, variant, pretrained,
+        default_cfg=timm_bit._cfg(
+            url='https://storage.googleapis.com/bit_models/distill/R50x1_160.npz',
+            input_size=(3, 160, 160), interpolation='bicubic'),
+        feature_cfg=feature_cfg,
+        pretrained_custom_load=True,
+        **kwargs)
+
+
+def _create_resnet50_pruned(variant, pretrained, **kwargs):
+    assert variant in [70, 83, 85]
+    cfg = timm_resnet._cfg(
+        url=f'https://degirum-model-checkpoints.s3.amazonaws.com/pruned_models/resnet50_pruned_{variant}_state_dict.pth')
+    return timm_resnet.build_model_with_cfg(
+        timm_resnet.ResNet, variant='resnet50', pretrained=pretrained,
+        default_cfg=cfg,
+        **kwargs)
+
+
+default_transform = tvtf.Compose([tvtf.Resize(256), tvtf.CenterCrop(224), tvtf.ToTensor(),
+                                  tvtf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+
+
+def create_model_and_transforms_OOD(model_name, pretrained=True):
+    model, transforms_ = create_model_and_transforms(model_name, pretrained)
+    open_img_transforms = get_open_img_transforms()
+    transforms = tvtf.Compose([open_img_transforms, transforms_])
+
+    return model, transforms
+
+
+def create_model_and_transforms(model_name, pretrained=True, models_dir='./timmResNets',
+                                weights_generic_name='model_best.pth.tar'):
+    if '_torchvision' in model_name:
+        pretrained_str = f'{pretrained}'
+
+        architecture = model_name.replace('_torchvision', '')
+        architecture = architecture.replace('_mcd', '')
+        if 'MCdropout' in model_name:
+            architecture = architecture.replace('_MCdropout', '')  # Since it's the same torchvision model
+        if '_quantized' in model_name:
+            architecture = architecture.replace('_quantized', '')
+            model = eval(
+                f'torchvision_models.quantization.' + architecture + f'(pretrained={pretrained_str}, quantize=True).eval().cuda()')
+        else:
+            model = eval(f'torchvision_models.' + architecture + f'(pretrained={pretrained_str}).eval().cuda()')
+
+        if architecture == 'inception_v3':
+            transform = tvtf.Compose([tvtf.Resize(342), tvtf.CenterCrop(299), tvtf.ToTensor(),
+                                      tvtf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        elif 'convnext' in architecture:
+            resize = 232
+            if architecture == 'convnext_small':
+                resize = 230
+            elif architecture == 'convnext_tiny':
+                resize = 236
+            transform = tvtf.Compose([tvtf.Resize(resize), tvtf.CenterCrop(224), tvtf.ToTensor(),
+                                      tvtf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        else:
+            transform = default_transform
+    elif model_name == 'resnetv2_50x1_bit_distilled_160_from224teacher':
+        model = _create_resnetv2_distilled_160_from224teacher('resnetv2_50x1_bit_distilled_160_from224teacher',
+                                                              pretrained=pretrained, stem_type='fixed',
+                                                              conv_layer=timm_bit.partial(timm_bit.StdConv2d, eps=1e-8),
+                                                              layers=[3, 4, 6, 3], width_factor=1).eval().cuda()
+        config = resolve_data_config({}, model=model)
+        transform = create_transform(**config)
+    elif 'resnet50_pruned' in model_name:  # It's a pruned resnet50 model
+        prune_level = [int(s) for s in model_name.split('_') if s.isdigit()]
+        assert len(prune_level) == 1
+        model = _create_resnet50_pruned(prune_level[0], pretrained,
+                                        **dict(block=timm_resnet.Bottleneck, layers=[3, 4, 6, 3])).eval().cuda()
+        transform = default_transform
+    elif 'tnt_s_patch16_224' in model_name:
+        from timm_lib.timm.models.tnt import tnt_s_patch16_224
+        model = tnt_s_patch16_224(pretrained=pretrained).eval().cuda()
+        config = resolve_data_config({}, model=model)
+        transform = create_transform(**config)
+    elif 'resnet50_seed' in model_name:
+        checkpoint_path = f'{models_dir}/{model_name.split("_")[1]}/{weights_generic_name}'
+        # model = timm_lib.create_model('resnet50', pretrained=False, checkpoint_path=checkpoint_path)
+        model = timm_lib.create_model('resnet50', pretrained=False)
+        checkpoint = torch.load(checkpoint_path)
+        model.load_state_dict(checkpoint['state_dict'], strict=False)
+        model = model.eval().cuda()
+        # Creating the model specific data transformation
+        config = resolve_data_config({}, model=model)
+        transform = create_transform(**config)
+    elif 'CLIP' in model_name:
+        architecture = model_name.replace('CLIP_', '')
+        if 'finetuned' in model_name:
+            architecture = architecture.replace('finetuned_', '')
+            finetuned = True
+        else:
+            finetuned = False
+        architecture = architecture.replace('~', '/')
+        model, transform = clip.load(architecture, device="cuda")
+        from clip_imagenet_classes import ImageNetClip
+        model = ImageNetClip(model, preprocess=transform, linear_probe=finetuned, name=model_name)
+    elif 'facebookSWAG' in model_name:
+        architecture = model_name.replace('_facebookSWAG', '')
+        model = torch.hub.load("facebookresearch/swag", model=architecture).eval().cuda()
+        resize = 384
+        if ('vit_l16_in1k' in model_name) or ('vit_h14_in1k' in model_name):
+            resize = 512
+        transform = tvtf.Compose(
+            [tvtf.Resize(resize, interpolation=tvtf.InterpolationMode.BICUBIC), tvtf.CenterCrop(resize),
+             tvtf.ToTensor(), tvtf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+    elif 'vit' in model_name and 'original' in model_name:
+        architecture = model_name.replace('_original', '')
+        architecture = architecture.replace('_mcd', '')
+        if 'mcd' in model_name:
+            model = old_timm_lib.timm.models.create_model(architecture, pretrained=pretrained,
+                                                          drop_rate=0.1).eval().cuda()
+        else:
+            model = old_timm_lib.timm.models.create_model(architecture, pretrained=pretrained).eval().cuda()
+        # Creating the model specific data transformation
+        config = old_resolve_data_config({}, model=model)
+        transform = old_create_transform(**config)
+        print(f'for {model_name} we gave dropout rate of 0.1')
+
+    elif 'efficientnet' in model_name and '_mcd' in model_name:
+        architecture = model_name.replace('_mcd', '')
+        drop_rate_dict = {'efficientnet_b0': 0.1, 'efficientnet_b1': 0.1, 'efficientnet_b2': 0.1,
+                          'efficientnet_b3': 0.1, 'efficientnet_b4': 0.1, 'efficientnet_b5': 0.1,
+                          'efficientnet_b6': 0.1, 'efficientnet_b7': 0.1,
+
+                          'tf_efficientnetv2_s': 0.1, 'tf_efficientnetv2_m': 0.1, 'tf_efficientnetv2_l': 0.1,
+                          'tf_efficientnetv2_s_in21ft1k': 0.1, 'tf_efficientnetv2_m_in21ft1k': 0.1,
+                          'tf_efficientnetv2_l_in21ft1k': 0.1, 'tf_efficientnetv2_xl_in21ft1k': 0.1,
+                          }
+
+        drop_rate = drop_rate_dict.get(architecture, 0.1)
+        print(f'for {model_name} we gave dropout rate of {drop_rate}')
+        model = timm_lib.models.create_model(architecture, pretrained=pretrained, drop_rate=drop_rate).eval().cuda()
+        # model = model.as_sequential()
+        # Creating the model specific data transformation
+        config = old_resolve_data_config({}, model=model)
+        transform = old_create_transform(**config)
+
+    else:
+        architecture = model_name.replace('_mcd', '')
+        model = timm_lib.models.create_model(architecture, pretrained=pretrained).eval().cuda()
+        # Creating the model specific data transformation
+        config = resolve_data_config({}, model=model)
+        transform = create_transform(**config)
+    return model, transform
+
+
+def to_human_format_str(num):
+    if num is None:
+        return None
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    # add more suffixes if you need them
+    return '%.2f%s' % (num, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
+
+
+def enable_dropout(model):
+    """ Function to enable the dropout layers during test-time """
+    for m in model.modules():
+        if m.__class__.__name__.startswith('Dropout'):
+            m.train()
+
+
+def MC_Dropout_Pass(x, model, dropout_iterations=30, classification=True):
+    # MC Dropout work
+
+    if hasattr(model.module, 'forward_mc_dropout'):
+        predictions = model.module.forward_mc_dropout(x, dropout_iterations)
+    else:
+        predictions = torch.empty((0, x.shape[0], 1000), device='cuda')  # 0, n_classes
+        for i in range(dropout_iterations):
+            output = model(x)
+            output = torch.softmax(output, dim=1)
+            predictions = torch.vstack((predictions, output.unsqueeze(0)))
+
+    # Calculating mean across multiple MCD forward passes
+    mean = torch.mean(predictions, dim=0)  # shape (n_samples, n_classes)??
+    label_predictions = mean.max(1)[1]
+    output_mean = torch.mean(predictions, dim=0, keepdim=True)
+    if not classification:
+        assert False
+        output_variance = torch.var(predictions, dim=0)
+        # prediction_variance = output_variance[:, label_predictions]
+        # prediction_variance = output_variance.index_select(dim=1, index=label_predictions)
+        # prediction_variance = output_variance[label_predictions.unsqueeze(1)]
+        prediction_variance = torch.gather(output_variance, -1, label_predictions.unsqueeze(-1)).squeeze(1)
+        return [-prediction_variance, label_predictions]
+        return output_mean, output_variance  # Return predictions & uncertainty
+
+    epsilon = sys.float_info.min
+    # Calculating entropy across multiple MCD forward passes
+    entropy = -torch.sum(mean * torch.log(mean + epsilon), dim=-1)  # shape (n_samples,)
+
+    # Calculating mutual information across multiple MCD forward passes
+    mutual_info = entropy - torch.mean(torch.sum(-predictions * torch.log(predictions + epsilon), dim=-1),
+                                       dim=0)  # shape (n_samples,)
+
+    return {'entropy_conf': -entropy, 'label_predictions': label_predictions,
+            'mutual_information': mutual_info, 'mean_p': mean}  # return all
+    return [-entropy, label_predictions]  # Change it if using another metric other than entropy
+    # return [-mutual_info, label_predictions]  # Change it if using another metric other than entropy
+    return output_mean, entropy, mutual_info  # Return predictions & uncertainty

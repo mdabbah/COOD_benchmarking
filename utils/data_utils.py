@@ -3,6 +3,7 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
+import torch
 
 from utils.custome_dataset import CustomedDataset
 from utils.project_paths import get_results_base_path, get_datasets_metadata_base_path
@@ -27,7 +28,15 @@ def load_pickle(path):
     return obj
 
 
-def create_dataset_metadata(dataset_info_dict):
+def get_dataset_num_of_classes(dataset_info_dict):
+    dataset_name = dataset_info_dict['dataset_name']
+
+    dataset_meta_data = load_dataset_metadata(dataset_name)
+    classes = dataset_meta_data['classes']
+    return len(classes)
+
+
+def create_dataset_metadata(dataset_info_dict, is_id_dataset=False):
     dataset_name = dataset_info_dict['dataset_name']
 
     ds_metadata_base_path = get_datasets_metadata_base_path()
@@ -35,21 +44,26 @@ def create_dataset_metadata(dataset_info_dict):
     if os.path.exists(dataset_metadata_path):
         return
 
-    dataset_base_folder = dataset_info_dict['base_folder']
-    percentage = dataset_info_dict['percentage']
+    dataset_base_folder = dataset_info_dict['images_base_folder']
 
     image_files = glob.glob(f'{dataset_base_folder}/*/*.(jpg|png|jpeg)')
 
     class_names = [os.path.basename(os.path.dirname(f)) for f in image_files]
     class_names, labels = np.unique(class_names, return_inverse=True)
 
-    train_idx, val_idx = split_dataset(labels, percentage)
+    if is_id_dataset:
+
+        val_idx = np.arange(len(image_files))
+        train_idx = None
+    else:
+
+        percentage = dataset_info_dict['percentage']
+        train_idx, val_idx = split_dataset(labels, percentage)
 
     meta_data = {'image_files': image_files, 'labels': labels, 'class_names': class_names,
                  'train_idx': train_idx, 'val_idx': val_idx, 'num_classes': len(class_names)}
 
     save_pickle(dataset_metadata_path, meta_data)
-
 
 
 def load_dataset_metadata(dataset_name, version='most_updated'):

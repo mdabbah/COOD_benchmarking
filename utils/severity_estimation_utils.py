@@ -63,4 +63,5 @@ def get_severity_levels_groups_of_classes(severity_proxy, num_severity_levels, n
 
     severity_levels_groups = np.array([cood_classes_ids[idx: idx + num_classes_per_group] for idx in chosen_groups_starts])
 
-    return {'severity_levels_groups': severity_levels_groups, 'severities_scores': severities_scores, 'percentiles': percentiles}
+    return {'severity_levels_groups': severity_levels_groups, 'severity_levels_scores': severities_scores,
+            'percentiles': percentiles}

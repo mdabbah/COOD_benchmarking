@@ -1,17 +1,39 @@
-from model_handling_utilities import get_model_name, args_dict_to_str, get_dataset_name
+import itertools
+
+import pandas as pd
+import torch.nn
+
+from model_handling_utilities import get_model_name, args_dict_to_str, get_dataset_name, handle_parameters, \
+    handle_model_dict_input, get_kappa_name, sanity_check_confidence_input, CONFIDENCE_METRIC_INPUT_ERR_MSG
 from utils.data_utils import load_model_results, create_dataset_metadata, save_model_results, create_data_loader, \
-    load_dataset_metadata
+    load_dataset_metadata, get_dataset_num_of_classes, load_model_results_df
 import numpy as np
 
+from utils.kappa_extractors import get_dataset_softmax_and_entropy_statistics, get_dataset_MC_dropout_statistics, \
+    get_dataset_last_activations, calc_odin_confidences, get_dataset_embeddings, calc_OOD_metrics
+from utils.log_utils import Timer
+from utils.models_wrapper import MySimpleWrapper
 from utils.severity_estimation_utils import calc_per_class_severity, get_severity_levels_groups_of_classes
+from utils.misc import create_model_and_transforms_OOD, log_ood_results, default_transform
 
 
 def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subsets, batch_size,
-                                            num_workers, function_name, confidence_args=None):
+                                            num_workers, function, confidence_args=None):
     print(f"Running on rank {rank}.")
 
     # create model and move it to GPU with id rank
-    model, transform = create_model_and_transforms_OOD(model, pretrained=True)
+    transform = None
+    if isinstance(model, str):
+        model, transform = create_model_and_transforms_OOD(model, pretrained=True)
+    elif isinstance(model, dict):
+        model, transform = handle_model_dict_input(model)
+
+    assert isinstance(model, torch.nn.Module)
+
+    if transform is None:
+        transform = default_transform
+    else:
+        raise ValueError(f'unrecognized model input form {type(model)}')
 
     # create the data loader.
     sampler_opt = None  # {'sampler_type': 'distributed'}
@@ -21,23 +43,30 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
                                          transform=transform)
 
     model = MySimpleWrapper(model.cuda(rank), model_name=model)
+    if isinstance(function, dict):
+        function = function['confidence_metric_callable']
 
-    with Timer(f'mcp time on {datasets_subsets} is:'):
-        if function_name in ['softmax_conf', 'entropy_conf', 'max_logit_conf']:
+
+    with Timer(f'time on {datasets_subsets} is:'):
+        if callable(function):
             results = get_dataset_softmax_and_entropy_statistics(model, all_data_loader, device=rank)
 
-        elif function_name in ['mcd_entropy', 'mutual_information', 'mcd_softmax']:
+        elif function in ['softmax_conf', 'entropy_conf', 'max_logit_conf']:
+            results = get_dataset_softmax_and_entropy_statistics(model, all_data_loader, device=rank)
+
+        elif function in ['mcd_entropy', 'mutual_information', 'mcd_softmax']:
             results = get_dataset_MC_dropout_statistics(model, all_data_loader, device=rank)
 
-        elif function_name == 'last_layer_activations':
+        elif function == 'last_layer_activations':
             results = get_dataset_last_activations(model, all_data_loader, device=rank)
 
-        elif function_name == 'odin_conf':
+        elif function == 'odin_conf':
             results = calc_odin_confidences(model, all_data_loader, device=rank, confidence_args=confidence_args)
 
-        elif function_name == 'embeddings':
+        elif function == 'embeddings':
 
             results = get_dataset_embeddings(model, all_data_loader, device=rank)
+
 
     del model
     # save_model_results(model_name, results, f'{tag}_{rank}')
@@ -60,30 +89,39 @@ def aggregate_confidences(results_list, axis=None):
     return confidences
 
 
-def get_cood_benchmarking_datasets(model, cood_dataset_info, num_severity_levels, num_id_classes, batch_size=64,
-                                   num_workers=2, confidence_metric='softmax_conf', rank=0, confidence_args=None):
-    assert confidence_metric in ['softmax_conf', 'entropy_conf', 'mcd_entropy', 'mutual_information',
-                                 'mcd_softmax', 'odin_conf', 'max_logit_conf']
+def get_cood_benchmarking_datasets(model, confidence_metric='softmax_conf', confidence_args=None,
+                                   cood_dataset_info='default', num_severity_levels=11, num_id_classes=1000,
+                                   batch_size=64, num_workers=2, rank=0, force_run=False):
+
+    assert sanity_check_confidence_input(confidence_metric), CONFIDENCE_METRIC_INPUT_ERR_MSG  # or callable(confidence_metric)
+
+    confidence_args_str = args_dict_to_str(confidence_args)
+    model_name = get_model_name(model)
+
+    confidence_metric_name = get_kappa_name(confidence_metric)
+
+    severity_levels_info_file_tag = f'severity_levels_info_n{num_severity_levels}_{confidence_metric_name}{confidence_args_str}'
+    severity_levels_info = load_model_results(model_name=model_name, data_name=severity_levels_info_file_tag)
+    if severity_levels_info is not None and not force_run:
+        return severity_levels_info
 
     cood_dataset_name = get_dataset_name(cood_dataset_info)  # ImageNet_20K
     create_dataset_metadata(cood_dataset_info)
 
-    base_model_name = model_name = get_model_name(model)
-    partial_tag = confidence_metric
+    partial_tag = confidence_metric_name
 
     # in case you want to experiment with kappas that have hyper-parameters
-    confidence_args_str = args_dict_to_str(confidence_args)
     confidence_file_tag = f'confidence_scores_{partial_tag}{confidence_args_str}_cood_estimation_samples'
 
     # part 1: estimate severity
     train_ood_confidences = load_model_results(model_name, confidence_file_tag)
-    if train_ood_confidences is None:
-        results = apply_model_function_on_dataset_samples(rank=rank, model=base_model_name,
+    if train_ood_confidences is None and not force_run:
+        results = apply_model_function_on_dataset_samples(rank=rank, model=model,
                                                           datasets=[cood_dataset_name],
                                                           datasets_subsets=['train'],
                                                           batch_size=batch_size,
                                                           num_workers=num_workers,
-                                                          function_name=confidence_metric,
+                                                          function=confidence_metric_name,
                                                           confidence_args=confidence_args)
 
         print(f'we got val results list')
@@ -94,14 +132,13 @@ def get_cood_benchmarking_datasets(model, cood_dataset_info, num_severity_levels
 
     # part 2: create severity levels
 
-    per_class_avg_confidence = calc_per_class_severity(train_ood_confidences, confidence_field_name=confidence_metric)
+    per_class_avg_confidence = calc_per_class_severity(train_ood_confidences, confidence_field_name=confidence_metric_name)
 
     severity_levels_info = get_severity_levels_groups_of_classes(per_class_avg_confidence,
                                                                  num_severity_levels=num_severity_levels,
                                                                  num_classes_per_group=num_id_classes)
 
-    save_model_results(model_name, severity_levels_info,
-                       f'severity_levels_info_{confidence_metric}{confidence_args_str}')
+    save_model_results(model_name, severity_levels_info, severity_levels_info_file_tag)
 
     return severity_levels_info
 
@@ -112,39 +149,83 @@ def get_cood_benchmarking_datasets(model, cood_dataset_info, num_severity_levels
 # one liner for one model or multiple models
 # leadership board
 
+def benchmark_list_inputs(models_list, confidence_metrics_list, *args):
+    if not isinstance(models_list, list):
+        models_list = [models_list]
+
+    if not isinstance(confidence_metrics_list, list):
+        confidence_metrics_list = [confidence_metrics_list]
+
+    all_results = []
+    for m, k in itertools.product(models_list, confidence_metrics_list):
+        res = benchmark_model_on_cood_with_severities(m, k, *args)
+
+        all_results.append(res)
+
+    return pd.concat(all_results)
 
 
-def get_model_cood_results(model, confidence_metric, confidence_args, cood_dataset_info,
-                           id_dataset_info, severity_levels_info, levels_to_benchmark,
-                           batch_size=64,
-                           num_workers=2, rank=0):
+def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', confidence_args=None,
+                                            cood_dataset_info='default',
+                                            id_dataset_info='default', num_severity_levels=11,
+                                            levels_to_benchmark='all',
+                                            batch_size=64,
+                                            num_workers=2, rank=0, force_run=False):
+    if isinstance(model, list) or isinstance(confidence_metric, list):
+        return benchmark_list_inputs(model, confidence_metric, confidence_args, cood_dataset_info, id_dataset_info,
+                                     num_severity_levels, levels_to_benchmark, batch_size, num_workers, rank, force_run)
 
+    assert sanity_check_confidence_input(confidence_metric), CONFIDENCE_METRIC_INPUT_ERR_MSG  # or callable(confidence_metric)
+
+    confidence_args_str = args_dict_to_str(confidence_args)
+    model_name = get_model_name(model)
+
+    kappa_name = get_kappa_name(confidence_metric)
+
+    results_file_tag = f'{kappa_name}{confidence_args_str}_n{num_severity_levels}'
+
+    model_results = load_model_results_df(model_name, results_file_tag)
+    if model_results is not None and not force_run:
+        return model_results[model_results.severity_levels.isin(levels_to_benchmark)]
+
+    (cood_dataset_info, id_dataset_info) = handle_parameters(cood_dataset_info, id_dataset_info)
     cood_dataset_name = get_dataset_name(cood_dataset_info)  # ImageNet_20K
     id_dataset_name = get_dataset_name(id_dataset_info)  # ImageNet_1K
 
     create_dataset_metadata(cood_dataset_info)
-    create_dataset_metadata(id_dataset_name)
+    create_dataset_metadata(id_dataset_info, is_id_dataset=True)
 
-    model_name = get_model_name(model)
-    partial_tag = confidence_metric
+    num_id_classes = get_dataset_num_of_classes(id_dataset_info)
 
-    # in case you want to experiment with kappas that have hyper-parameters
-    confidence_args_str = args_dict_to_str(confidence_args)
+    partial_tag = kappa_name
+
+    # in case you want to experiment with kappas that have hyperparameters
     # part 3: evaluate on test
-    confidence_file_tag = f'stats_{partial_tag}{confidence_args_str}_all_val'
 
+    severity_levels_info = get_cood_benchmarking_datasets(model, confidence_metric=confidence_metric,
+                                                          confidence_args=confidence_args,
+                                                          cood_dataset_info=cood_dataset_info,
+                                                          num_severity_levels=num_severity_levels,
+                                                          num_id_classes=num_id_classes,
+                                                          batch_size=batch_size, num_workers=num_workers, rank=rank,
+                                                          force_run=force_run)
+
+    if levels_to_benchmark == 'all':
+        levels_to_benchmark = np.arange(num_severity_levels)
 
     # get cood datasets classes
-    cood_classes = severity_levels_info['severity_levels_groups'][levels_to_benchmark]
+    cood_classes = severity_levels_info['severity_levels_groups']
+    # cood_classes = 'val'
 
+    confidence_file_tag = f'stats_{partial_tag}{confidence_args_str}_all_val'
     validation_confidences = load_model_results(model_name, confidence_file_tag)
-    if validation_confidences is None:
+    if validation_confidences is None and not force_run:
         results = apply_model_function_on_dataset_samples(rank=rank, model=model,
                                                           datasets=[id_dataset_name, cood_dataset_name],
-                                                          datasets_subsets=['val', cood_classes],
+                                                          datasets_subsets=['val', 'val'],
                                                           batch_size=batch_size,
                                                           num_workers=num_workers,
-                                                          function_name=confidence_metric,
+                                                          function=confidence_metric,
                                                           confidence_args=confidence_args)
 
         print(f'we got val results list')
@@ -155,13 +236,15 @@ def get_model_cood_results(model, confidence_metric, confidence_args, cood_datas
 
     # part 4: evaluate the OOD performance
 
-    num_id_classes = load_dataset_metadata(id_dataset_name)['num_classes']
-    model_info = {'model_name': model_name}
     validation_confidences['is_ID'] = validation_confidences['labels'] < num_id_classes
 
-    ood_results = calc_OOD_metrics(cood_classes + num_id_classes, validation_confidences, confidence_metric)
+    ood_results = calc_OOD_metrics(cood_classes + num_id_classes, validation_confidences, kappa_name)
 
-    model_results = log_ood_results(model_info, ood_results, f'{confidence_metric}{confidence_args_str}',
-                    f'{confidence_metric}{confidence_args_str}', levels_to_benchmark)
+    percentiles = severity_levels_info['percentiles']
+    model_info = {'model_name': model_name, 'kappa': kappa_name}
+
+    model_results = log_ood_results(model_info, ood_results, results_file_tag, percentiles)
+
+    model_results = model_results[model_results.severity_levels.isin(levels_to_benchmark)]
 
     return model_results
