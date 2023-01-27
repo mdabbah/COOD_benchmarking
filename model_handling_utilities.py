@@ -1,5 +1,7 @@
 from typing import Dict
 
+import torch.nn
+
 from utils.misc import create_model_and_transforms_OOD
 
 
@@ -71,8 +73,7 @@ def sanity_check_confidence_input(confidence_metric):
     if callable(confidence_metric):
         return True
 
-    return isinstance(confidence_metric, dict) and 'confidence_metric_callable' in confidence_metric and \
-           callable(confidence_metric['confidence_metric_callable'])
+    return isinstance(confidence_metric, dict) and callable(confidence_metric.get('confidence_metric_callable'))
 
 
 CONFIDENCE_METRIC_INPUT_ERR_MSG = "confidence metric input needs to be either a callble fuction or a string or a dict " \
@@ -81,6 +82,21 @@ CONFIDENCE_METRIC_INPUT_ERR_MSG = "confidence metric input needs to be either a 
                                                                     'mutual_information',\
                                                                     'mcd_softmax', 'odin_conf', 'max_logit_conf']"
 
+
+def sanity_model_input(model):
+    if isinstance(model, str):
+        return True
+
+    if isinstance(model, torch.nn.Module):
+        return True
+
+    if isinstance(model, dict):
+        return isinstance(model.get('nn.Module'), torch.nn.Module) or \
+               isinstance(model.get('model_name'), str)
+
+
+MODEL_INPUT_ERR_MSG = "model needs to be either a string or nn.Module instance or a dictionary with keys 'model_name'" \
+                      "(string) or 'nn.Module' (nn.Module)"
 
 def args_dict_to_str(args_dict):
     if args_dict is None or not isinstance(args_dict, dict):

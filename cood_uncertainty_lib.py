@@ -4,7 +4,8 @@ import pandas as pd
 import torch.nn
 
 from model_handling_utilities import get_model_name, args_dict_to_str, get_dataset_name, handle_parameters, \
-    handle_model_dict_input, get_kappa_name, sanity_check_confidence_input, CONFIDENCE_METRIC_INPUT_ERR_MSG
+    handle_model_dict_input, get_kappa_name, sanity_check_confidence_input, CONFIDENCE_METRIC_INPUT_ERR_MSG, \
+    sanity_model_input, MODEL_INPUT_ERR_MSG
 from utils.data_utils import load_model_results, create_dataset_metadata, save_model_results, create_data_loader, \
     load_dataset_metadata, get_dataset_num_of_classes, load_model_results_df
 import numpy as np
@@ -36,7 +37,6 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
         raise ValueError(f'unrecognized model input form {type(model)}')
 
     # create the data loader.
-    sampler_opt = None  # {'sampler_type': 'distributed'}
     all_data_loader = create_data_loader(datasets,
                                          ds_subsets=datasets_subsets, batch_size=batch_size,
                                          num_workers=num_workers,
@@ -93,7 +93,8 @@ def get_cood_benchmarking_datasets(model, confidence_metric='softmax_conf', conf
                                    cood_dataset_info='default', num_severity_levels=11, num_id_classes=1000,
                                    batch_size=64, num_workers=2, rank=0, force_run=False):
 
-    assert sanity_check_confidence_input(confidence_metric), CONFIDENCE_METRIC_INPUT_ERR_MSG  # or callable(confidence_metric)
+    assert sanity_check_confidence_input(confidence_metric), CONFIDENCE_METRIC_INPUT_ERR_MSG
+    assert sanity_model_input(confidence_metric), MODEL_INPUT_ERR_MSG
 
     confidence_args_str = args_dict_to_str(confidence_args)
     model_name = get_model_name(model)
@@ -175,7 +176,8 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
         return benchmark_list_inputs(model, confidence_metric, confidence_args, cood_dataset_info, id_dataset_info,
                                      num_severity_levels, levels_to_benchmark, batch_size, num_workers, rank, force_run)
 
-    assert sanity_check_confidence_input(confidence_metric), CONFIDENCE_METRIC_INPUT_ERR_MSG  # or callable(confidence_metric)
+    assert sanity_check_confidence_input(confidence_metric), CONFIDENCE_METRIC_INPUT_ERR_MSG
+    assert sanity_model_input(confidence_metric), MODEL_INPUT_ERR_MSG
 
     confidence_args_str = args_dict_to_str(confidence_args)
     model_name = get_model_name(model)
