@@ -10,8 +10,8 @@ from utils.data_utils import load_model_results, create_dataset_metadata, save_m
     load_dataset_metadata, get_dataset_num_of_classes, load_model_results_df
 import numpy as np
 
-from utils.kappa_extractors import get_dataset_softmax_and_entropy_statistics, get_dataset_MC_dropout_statistics, \
-    get_dataset_last_activations, calc_odin_confidences, get_dataset_embeddings, calc_OOD_metrics
+from utils.kappa_extractors import extract_softmax_signals_on_dataset, extract_MC_dropout_on_dataset, \
+    get_dataset_last_activations, extract_odin_confidences_on_dataset, get_dataset_embeddings, calc_OOD_metrics
 from utils.log_utils import Timer
 from utils.models_wrapper import MySimpleWrapper
 from utils.severity_estimation_utils import calc_per_class_severity, get_severity_levels_groups_of_classes
@@ -49,19 +49,19 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
 
     with Timer(f'time on {datasets_subsets} is:'):
         if callable(function):
-            results = get_dataset_softmax_and_entropy_statistics(model, all_data_loader, device=rank)
+            results = function(model, all_data_loader, device=rank)
 
         elif function in ['softmax_conf', 'entropy_conf', 'max_logit_conf']:
-            results = get_dataset_softmax_and_entropy_statistics(model, all_data_loader, device=rank)
+            results = extract_softmax_signals_on_dataset(model, all_data_loader, device=rank)
 
         elif function in ['mcd_entropy', 'mutual_information', 'mcd_softmax']:
-            results = get_dataset_MC_dropout_statistics(model, all_data_loader, device=rank)
+            results = extract_MC_dropout_on_dataset(model, all_data_loader, device=rank)
 
         elif function == 'last_layer_activations':
             results = get_dataset_last_activations(model, all_data_loader, device=rank)
 
         elif function == 'odin_conf':
-            results = calc_odin_confidences(model, all_data_loader, device=rank, confidence_args=confidence_args)
+            results = extract_odin_confidences_on_dataset(model, all_data_loader, device=rank, confidence_args=confidence_args)
 
         elif function == 'embeddings':
 

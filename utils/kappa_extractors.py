@@ -314,7 +314,7 @@ def calc_per_class_severity(confidence_results, confidence_field_name):
     return per_class_severity_sum / per_class_counts
 
 
-def get_dataset_MC_dropout_statistics(model, all_data_loader, device):
+def extract_MC_dropout_on_dataset(model, all_data_loader, device):
     """
 
      :param model:
@@ -370,7 +370,7 @@ def get_dataset_MC_dropout_statistics(model, all_data_loader, device):
     return confidences
 
 
-def get_dataset_softmax_and_entropy_statistics(model, all_data_loader, device):
+def extract_softmax_signals_on_dataset(model, all_data_loader, device):
     """
 
     :param model:
@@ -887,7 +887,7 @@ def calc_mahalanobis_confidence(gaussians, features_and_labels, batch_size=128):
     return confidences
 
 
-def calc_odin_confidences(model, all_data_loader, device, confidence_args=None):
+def extract_odin_confidences_on_dataset(model, all_data_loader, device, confidence_args=None):
     """ implements: https://arxiv.org/pdf/1706.02690.pdf"""
 
     if confidence_args is None:
