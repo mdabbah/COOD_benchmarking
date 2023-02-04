@@ -119,6 +119,7 @@ def log_ood_results(model_info, ood_results, results_file_tag, percentiles):
     model_results['kappa'] = model_info['kappa']
     model_results['percentile'] = percentiles
     model_results['severity_level'] = np.arange(len(percentiles))
+    model_results['model_name-kappa'] = model_info['model_name'] + '-' + model_info['kappa']
 
 
     model_name = model_info['model_name']

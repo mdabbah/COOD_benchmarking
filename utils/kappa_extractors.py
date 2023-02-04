@@ -370,6 +370,43 @@ def extract_MC_dropout_on_dataset(model, all_data_loader, device):
     return confidences
 
 
+def extract_softmax_on_dataset(model, data_loader, device):
+    """
+
+    :param model:
+    :param data_loader:
+    :param device:
+    :return:
+    """
+
+    model.eval()
+    model.float()
+
+    confidences = {'softmax_conf': [], 'correct': [], 'predictions': [], 'labels': []}
+
+    with torch.no_grad():
+        for x, y in data_loader:
+            x = x.float().to(f'cuda:{device}')
+            logits = model(x)
+
+            probs = F.softmax(logits, dim=1)
+            softmax_conf, predictions = torch.max(probs, dim=1)
+            predictions = to_cpu(predictions)
+            correct = y.numpy() == predictions
+
+            confidences['softmax_conf'].append(to_cpu(softmax_conf))
+            confidences['correct'].append(correct)
+            confidences['predictions'].append(predictions)
+            confidences['labels'].append(y.numpy())
+
+            # need to delete in explicit fashion to reduce OOM errors
+            del x
+            del probs
+            del softmax_conf
+
+    return confidences
+
+
 def extract_softmax_signals_on_dataset(model, all_data_loader, device):
     """
 

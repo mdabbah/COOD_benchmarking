@@ -215,6 +215,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
 
     # get cood datasets classes
     cood_classes = severity_levels_info['severity_levels_groups']
+    # cood_classes = severity_levels_info['severity_levels_groups'][levels_to_benchmark]
     # cood_classes = 'val'
 
     confidence_file_tag = f'stats_{partial_tag}{confidence_args_str}_all_val'
@@ -223,6 +224,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
         results = apply_model_function_on_dataset_samples(rank=rank, model=model,
                                                           datasets=[id_dataset_name, cood_dataset_name],
                                                           datasets_subsets=['val', 'val'],
+                                                          # datasets_subsets=['val', cood_classes],
                                                           batch_size=batch_size,
                                                           num_workers=num_workers,
                                                           function=confidence_metric,

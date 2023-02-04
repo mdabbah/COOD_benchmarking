@@ -1,11 +1,45 @@
+import plotly.express
+
 from cood_uncertainty_lib import benchmark_model_on_cood_with_severities
 
 if __name__ == '__main__':
-    results = benchmark_model_on_cood_with_severities(model='resnet50', confidence_metric='softmax_conf',
+    results2 = benchmark_model_on_cood_with_severities(model='resnet50')
+    plotly.express.line(results2, x='severity_levels', y='cood-auroc', color='model_name-kappa')
+
+
+    default_ood_dataset_info = {
+        'dataset_name': 'ImageNet_20K',
+        'images_base_folder': '<path to images dir>',  # <path to images dir>/classname/*.(jpg|png|jpeg)
+        'test_estimation_split_percentage': 0.25
+    }
+
+    default_id_dataset_info = {
+        'dataset_name': 'ImageNet_1K',
+        'images_base_folder': '<path to images dir>',
+    }
+
+    results2 = benchmark_model_on_cood_with_severities(model=['resnet50', 'resnet18'],
+                                                       confidence_metric=['softmax_conf', 'entropy_conf'],
+                                                       cood_dataset_info=default_ood_dataset_info,
+                                                       id_dataset_info=default_id_dataset_info)
+    plotly.express.line(results2, x='severity_levels', y='cood-auroc', color='model_name-kappa')
+
+
+
+    results = benchmark_model_on_cood_with_severities(model=['resnet50', 'resnet18'],
+                                                      confidence_metric=['softmax_conf', 'entropy_conf'],
                                                       confidence_args=None,
                                                       cood_dataset_info='default',
                                                       id_dataset_info='default', num_severity_levels=11,
                                                       levels_to_benchmark='all', batch_size=64, num_workers=2, rank=0)
+
+    plotly.express.line(results, x='severity_levels', y='cood-auroc', color='model_name-kappa')
+
+    results1 = benchmark_model_on_cood_with_severities(model='resnet50', confidence_metric='softmax_conf')
+
+    results2 = benchmark_model_on_cood_with_severities(model='resnet50')
+
+    #
 
     from torchvision.models import resnet50
     import torchvision.transforms as tvtf
@@ -15,14 +49,17 @@ if __name__ == '__main__':
 
     example_model_input = {'model_name': 'resnet50', 'nn.Module': resnet50(),
                            'nn.transforms': resnet50_transform}  # recommended
-    example_model_input1 = resnet50()
+    example_model_input1 = 'resnet50'  # recommended
     example_model_input2 = {'model_name': 'resnet50'}
-    example_model_input3 = {'nn.Module': resnet50()}
+    example_model_input3 = resnet50()
+    example_model_input4 = {'nn.Module': resnet50()}
 
-    from utils.kappa_extractors import extract_softmax_signals_on_dataset
+    example_model_input5 = [example_model_input, example_model_input2, example_model_input3]
 
-    example_kappa_input = extract_softmax_signals_on_dataset
+    from utils.kappa_extractors import extract_softmax_on_dataset
+
+    example_kappa_input = extract_softmax_on_dataset
     example_kappa_input1 = {'confidence_metric_name': 'softmax_conf',
-                            'confidence_metric_callable': extract_softmax_signals_on_dataset}  # recommended
+                            'confidence_metric_callable': extract_softmax_on_dataset}  # recommended
 
-    example_kappa_input2 = {'confidence_metric_callable': extract_softmax_signals_on_dataset}
+    example_kappa_input2 = {'confidence_metric_callable': extract_softmax_on_dataset}
