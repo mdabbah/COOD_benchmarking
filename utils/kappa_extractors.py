@@ -407,6 +407,176 @@ def extract_softmax_on_dataset(model, data_loader, device):
     return confidences
 
 
+def extract_entropy_on_dataset(model, all_data_loader, device):
+    """
+
+    :param model:
+    :param all_data_loader:
+    :param device:
+    :return:
+    """
+
+    model.eval()
+    model.float()
+
+    confidences = {'entropy_conf': [], 'correct': [], 'predictions': [], 'labels': []}
+
+    num_batches = len(all_data_loader)
+    with torch.no_grad():
+        for x, y in all_data_loader:
+            x = x.float().to(f'cuda:{device}')
+            logits = model(x)
+
+            probs = F.softmax(logits, dim=1)
+            softmax_conf, predictions = torch.max(probs, dim=1)
+            predictions = to_cpu(predictions)
+            correct = y.numpy() == predictions
+            entropy_conf = - Categorical(probs=probs).entropy()
+
+            confidences['entropy_conf'].append(to_cpu(entropy_conf))
+            confidences['correct'].append(correct)
+            confidences['predictions'].append(predictions)
+            confidences['labels'].append(y.numpy())
+
+            del x
+            del probs
+            del entropy_conf
+
+    return confidences
+
+
+def extract_max_logit_on_dataset(model, all_data_loader, device):
+    """
+
+    :param model:
+    :param all_data_loader:
+    :param device:
+    :return:
+    """
+
+    model.eval()
+    model.float()
+
+    confidences = {'max_logit_conf': [], 'correct': [], 'predictions': [], 'labels': []}
+
+    with torch.no_grad():
+        for x, y in all_data_loader:
+            x = x.float().to(f'cuda:{device}')
+            logits = model(x)
+            max_logit_conf = torch.max(logits, dim=1)[0]
+            confidences['max_logit_conf'].append(to_cpu(max_logit_conf))
+
+            probs = F.softmax(logits, dim=1)
+            softmax_conf, predictions = torch.max(probs, dim=1)
+            predictions = to_cpu(predictions)
+            correct = y.numpy() == predictions
+
+            confidences['correct'].append(correct)
+            confidences['predictions'].append(predictions)
+            confidences['labels'].append(y.numpy())
+
+            del x
+            del probs
+
+    return confidences
+
+
+def extract_odin_confidences_on_dataset(model, all_data_loader, device, confidence_args=None):
+    """ implements: https://arxiv.org/pdf/1706.02690.pdf"""
+
+    if confidence_args is None:
+        temperature = 1000
+        noiseMagnitude1 = 0.0014
+    else:
+        temperature = confidence_args['temperature']
+        noiseMagnitude1 = confidence_args['noise_mag']
+
+    model.eval()
+    # model.requires_grad_(True)
+    # for param in model.module.parameters():
+    #     param.requires_grad = True
+    model.float()
+
+    confidences = {'softmax_conf': [], 'entropy_conf': [], 'correct': [], 'predictions': [], 'labels':
+        [], 'odin_conf': []}
+
+    temperature = torch.tensor(temperature).float().to(f'cuda:{device}')
+    noiseMagnitude1 = torch.tensor(noiseMagnitude1).float().to(f'cuda:{device}')
+
+    # image_norm_vector = torch.tensor([0.485, 0.456, 0.406]).float().to(f'cuda:{device}')
+    # IDO and GUY check this vector I asume it's supposed to be the std vec for normalizing images
+    # I took it from torch ...
+    image_norm_vector = torch.tensor([0.229, 0.224, 0.225]).float().to(f'cuda:{device}')
+    # odin github (https://github.com/facebookresearch/odin/blob/main/code/calData.py)
+    # used this vector [(63.0 / 255.0), (62.1 / 255.0), (66.7 / 255.0)]
+    # image_norm_vector = torch.tensor([(63.0 / 255.0), (62.1 / 255.0), (66.7 / 255.0)]).float().to(f'cuda:{device}')
+
+    image_norm_vector = image_norm_vector.view((1, 3, 1, 1))
+
+    opt = torch.optim.SGD([*model.parameters(), image_norm_vector, temperature, noiseMagnitude1], lr=0.001)
+
+    # with torch.no_grad():
+    for x, y in all_data_loader:
+        x = x.float().to(f'cuda:{device}')
+        x.requires_grad_(True)
+        opt.zero_grad()
+
+        logits = model(x)
+
+        probs = F.softmax(logits, dim=1)
+        softmax_conf, predictions = torch.max(probs, dim=1)
+        loss = F.cross_entropy(probs, predictions)
+
+        predictions = to_cpu(predictions)
+        correct = y.numpy() == predictions
+        entropy_conf = - Categorical(probs=probs).entropy()
+
+        loss.backward()
+
+        # sign(gradient_x)
+        gradient = torch.ge(x.grad, 0)
+        gradient = (gradient.float() - 0.5) * 2
+
+        # Normalizing the gradient to the same space of image
+        gradient = gradient / image_norm_vector
+
+        # Adding small perturbations to images
+        perturbed_x = x - (noiseMagnitude1 * gradient)
+
+        # forward pass the perturbed image
+        new_logits = model(perturbed_x)
+        new_logits = new_logits / temperature
+
+        # for numerical stability ...
+        new_logits = new_logits - (torch.max(new_logits, dim=1)[0]).view(len(new_logits), 1)
+        # Calculating the confidence after adding perturbations
+        new_probs = F.softmax(new_logits, dim=1)
+        odin_conf = torch.max(new_probs, dim=1)[0]
+
+        confidences['softmax_conf'].append(to_cpu(softmax_conf))
+        confidences['odin_conf'].append(to_cpu(odin_conf))
+        confidences['entropy_conf'].append(to_cpu(entropy_conf))
+        confidences['correct'].append(correct)
+        confidences['predictions'].append(predictions)
+        confidences['labels'].append(y)
+
+        del x
+        del y
+        del probs
+        del softmax_conf
+        del entropy_conf
+        del odin_conf
+        del new_probs
+        del new_logits
+        del perturbed_x
+        del gradient
+        del loss
+
+        torch.cuda.empty_cache()
+
+    return confidences
+
+
 def extract_softmax_signals_on_dataset(model, all_data_loader, device):
     """
 
@@ -921,112 +1091,6 @@ def calc_mahalanobis_confidence(gaussians, features_and_labels, batch_size=128):
 
     confidences['ddu_v2'] = np.sum(confidences['ddu_v2'], axis=1)
     confidences['labels'] = features_and_labels['labels']
-    return confidences
-
-
-def extract_odin_confidences_on_dataset(model, all_data_loader, device, confidence_args=None):
-    """ implements: https://arxiv.org/pdf/1706.02690.pdf"""
-
-    if confidence_args is None:
-        temperature = 1000
-        noiseMagnitude1 = 0.0014
-    else:
-        temperature = confidence_args['temperature']
-        noiseMagnitude1 = confidence_args['noise_mag']
-
-    model.eval()
-    # model.requires_grad_(True)
-    # for param in model.module.parameters():
-    #     param.requires_grad = True
-    model.float()
-
-    confidences = {'softmax_conf': [], 'entropy_conf': [], 'correct': [], 'predictions': [], 'labels':
-        [], 'odin_conf': []}
-
-    progress_log = Logger('./progress_log.txt', ['init'], False)
-    batch_idx = 0
-    num_batches = len(all_data_loader)
-    temperature = torch.tensor(temperature).float().to(f'cuda:{device}')
-    noiseMagnitude1 = torch.tensor(noiseMagnitude1).float().to(f'cuda:{device}')
-
-    # image_norm_vector = torch.tensor([0.485, 0.456, 0.406]).float().to(f'cuda:{device}')
-    # IDO and GUY check this vector I asume it's supposed to be the std vec for normalizing images
-    # I took it from torch ...
-    image_norm_vector = torch.tensor([0.229, 0.224, 0.225]).float().to(f'cuda:{device}')
-    # odin github (https://github.com/facebookresearch/odin/blob/main/code/calData.py)
-    # used this vector [(63.0 / 255.0), (62.1 / 255.0), (66.7 / 255.0)]
-    # image_norm_vector = torch.tensor([(63.0 / 255.0), (62.1 / 255.0), (66.7 / 255.0)]).float().to(f'cuda:{device}')
-
-    image_norm_vector = image_norm_vector.view((1, 3, 1, 1))
-
-    opt = torch.optim.SGD([*model.parameters(), image_norm_vector, temperature, noiseMagnitude1], lr=0.001)
-
-    # with torch.no_grad():
-    for x, y in all_data_loader:
-        x = x.float().to(f'cuda:{device}')
-        x.requires_grad_(True)
-        opt.zero_grad()
-
-        logits = model(x)
-
-        probs = F.softmax(logits, dim=1)
-        softmax_conf, predictions = torch.max(probs, dim=1)
-        loss = F.cross_entropy(probs, predictions)
-
-        predictions = to_cpu(predictions)
-        correct = y.numpy() == predictions
-        entropy_conf = Categorical(probs=probs).entropy()
-
-        loss.backward()
-
-        # sign(gradient_x)
-        gradient = torch.ge(x.grad, 0)
-        gradient = (gradient.float() - 0.5) * 2
-
-        # Normalizing the gradient to the same space of image
-        gradient = gradient / image_norm_vector
-
-        # Adding small perturbations to images
-        perturbed_x = x - (noiseMagnitude1 * gradient)
-
-        # forward pass the perturbed image
-        new_logits = model(perturbed_x)
-        new_logits = new_logits / temperature
-
-        # for numerical stability ...
-        new_logits = new_logits - (torch.max(new_logits, dim=1)[0]).view(len(new_logits), 1)
-        # Calculating the confidence after adding perturbations
-        new_probs = F.softmax(new_logits, dim=1)
-        odin_conf = torch.max(new_probs, dim=1)[0]
-
-        confidences['softmax_conf'].append(to_cpu(softmax_conf))
-        confidences['odin_conf'].append(to_cpu(odin_conf))
-        confidences['entropy_conf'].append(to_cpu(entropy_conf))
-        confidences['correct'].append(correct)
-        confidences['predictions'].append(predictions)
-        confidences['labels'].append(y)
-
-        progress_log.log_msg(f'{model.model_name} on device {device} finished {batch_idx}/{num_batches}  '
-                             f'time_stamp: {datetime.now()}')
-        batch_idx += 1
-
-        del x
-        del y
-        del probs
-        del softmax_conf
-        del entropy_conf
-        del odin_conf
-        del new_probs
-        del new_logits
-        del perturbed_x
-        del gradient
-        del loss
-
-        torch.cuda.empty_cache()
-
-        # if batch_idx == 3:
-        #     break
-
     return confidences
 
 
