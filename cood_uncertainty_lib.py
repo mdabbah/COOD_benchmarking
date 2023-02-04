@@ -89,7 +89,7 @@ def aggregate_confidences(results_list, axis=None):
 
 def get_cood_benchmarking_datasets(model, confidence_metric='softmax_conf', confidence_args=None,
                                    cood_dataset_info='default', num_severity_levels=11, num_id_classes=1000,
-                                   batch_size=64, num_workers=2, rank=0, force_run=False):
+                                   batch_size=64, num_workers=2, rank=0, force_run=False, confidence_key='confidences'):
 
     assert sanity_check_confidence_input(confidence_metric), CONFIDENCE_METRIC_INPUT_ERR_MSG
     assert sanity_model_input(confidence_metric), MODEL_INPUT_ERR_MSG
@@ -99,7 +99,8 @@ def get_cood_benchmarking_datasets(model, confidence_metric='softmax_conf', conf
 
     confidence_metric_name = get_kappa_name(confidence_metric)
 
-    severity_levels_info_file_tag = f'severity_levels_info_n{num_severity_levels}_{confidence_metric_name}{confidence_args_str}'
+    severity_levels_info_file_tag = f'severity_levels_info_n{num_severity_levels}_' \
+                                    f'{confidence_metric_name}_{confidence_key}{confidence_args_str}'
     severity_levels_info = load_model_results(model_name=model_name, data_name=severity_levels_info_file_tag)
     if severity_levels_info is not None and not force_run:
         return severity_levels_info
@@ -131,7 +132,7 @@ def get_cood_benchmarking_datasets(model, confidence_metric='softmax_conf', conf
 
     # part 2: create severity levels
 
-    per_class_avg_confidence = calc_per_class_severity(train_ood_confidences, confidence_field_name=confidence_metric_name)
+    per_class_avg_confidence = calc_per_class_severity(train_ood_confidences, confidence_field_name=confidence_key)
 
     severity_levels_info = get_severity_levels_groups_of_classes(per_class_avg_confidence,
                                                                  num_severity_levels=num_severity_levels,
@@ -169,10 +170,11 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
                                             id_dataset_info='default', num_severity_levels=11,
                                             levels_to_benchmark='all',
                                             batch_size=64,
-                                            num_workers=2, rank=0, force_run=False):
+                                            num_workers=2, rank=0, force_run=False, confidence_key='confidences'):
     if isinstance(model, list) or isinstance(confidence_metric, list):
         return benchmark_list_inputs(model, confidence_metric, confidence_args, cood_dataset_info, id_dataset_info,
-                                     num_severity_levels, levels_to_benchmark, batch_size, num_workers, rank, force_run)
+                                     num_severity_levels, levels_to_benchmark, batch_size, num_workers, rank, force_run,
+                                     confidence_key)
 
     assert sanity_check_confidence_input(confidence_metric), CONFIDENCE_METRIC_INPUT_ERR_MSG
     assert sanity_model_input(confidence_metric), MODEL_INPUT_ERR_MSG
@@ -208,7 +210,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
                                                           num_severity_levels=num_severity_levels,
                                                           num_id_classes=num_id_classes,
                                                           batch_size=batch_size, num_workers=num_workers, rank=rank,
-                                                          force_run=force_run)
+                                                          force_run=force_run, confidence_key=confidence_key)
 
     if levels_to_benchmark == 'all':
         levels_to_benchmark = np.arange(num_severity_levels)
@@ -240,10 +242,10 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
 
     validation_confidences['is_ID'] = validation_confidences['labels'] < num_id_classes
 
-    ood_results = calc_OOD_metrics(cood_classes + num_id_classes, validation_confidences, kappa_name)
+    ood_results = calc_OOD_metrics(cood_classes + num_id_classes, validation_confidences, confidence_key)
 
     percentiles = severity_levels_info['percentiles']
-    model_info = {'model_name': model_name, 'kappa': kappa_name}
+    model_info = {'model_name': model_name, 'kappa': f'{kappa_name}_{confidence_key}'}
 
     model_results = log_ood_results(model_info, ood_results, results_file_tag, percentiles)
 

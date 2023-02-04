@@ -382,7 +382,7 @@ def extract_softmax_on_dataset(model, data_loader, device):
     model.eval()
     model.float()
 
-    confidences = {'softmax_conf': [], 'correct': [], 'predictions': [], 'labels': []}
+    confidences = {'confidences': [], 'correct': [], 'predictions': [], 'labels': []}
 
     with torch.no_grad():
         for x, y in data_loader:
@@ -394,7 +394,7 @@ def extract_softmax_on_dataset(model, data_loader, device):
             predictions = to_cpu(predictions)
             correct = y.numpy() == predictions
 
-            confidences['softmax_conf'].append(to_cpu(softmax_conf))
+            confidences['confidences'].append(to_cpu(softmax_conf))
             confidences['correct'].append(correct)
             confidences['predictions'].append(predictions)
             confidences['labels'].append(y.numpy())
@@ -419,9 +419,8 @@ def extract_entropy_on_dataset(model, all_data_loader, device):
     model.eval()
     model.float()
 
-    confidences = {'entropy_conf': [], 'correct': [], 'predictions': [], 'labels': []}
+    confidences = {'confidences': [], 'correct': [], 'predictions': [], 'labels': []}
 
-    num_batches = len(all_data_loader)
     with torch.no_grad():
         for x, y in all_data_loader:
             x = x.float().to(f'cuda:{device}')
@@ -433,7 +432,7 @@ def extract_entropy_on_dataset(model, all_data_loader, device):
             correct = y.numpy() == predictions
             entropy_conf = - Categorical(probs=probs).entropy()
 
-            confidences['entropy_conf'].append(to_cpu(entropy_conf))
+            confidences['confidences'].append(to_cpu(entropy_conf))
             confidences['correct'].append(correct)
             confidences['predictions'].append(predictions)
             confidences['labels'].append(y.numpy())
@@ -457,14 +456,14 @@ def extract_max_logit_on_dataset(model, all_data_loader, device):
     model.eval()
     model.float()
 
-    confidences = {'max_logit_conf': [], 'correct': [], 'predictions': [], 'labels': []}
+    confidences = {'confidences': [], 'correct': [], 'predictions': [], 'labels': []}
 
     with torch.no_grad():
         for x, y in all_data_loader:
             x = x.float().to(f'cuda:{device}')
             logits = model(x)
             max_logit_conf = torch.max(logits, dim=1)[0]
-            confidences['max_logit_conf'].append(to_cpu(max_logit_conf))
+            confidences['confidences'].append(to_cpu(max_logit_conf))
 
             probs = F.softmax(logits, dim=1)
             softmax_conf, predictions = torch.max(probs, dim=1)
@@ -1203,7 +1202,7 @@ def calc_OOD_metrics_on_dataset(confidences, confidence_type):
     return attack_groups_results
 
 
-def calc_OOD_metrics(attack_groups, confidences, confidence_type):
+def calc_OOD_metrics(attack_groups, confidences, confidence_key):
     """
     given attack_groups where each row is a group
     :param attack_groups:
@@ -1218,7 +1217,7 @@ def calc_OOD_metrics(attack_groups, confidences, confidence_type):
     """
 
     id_sampels = confidences['is_ID']
-    confs = confidences[confidence_type]
+    confs = confidences[confidence_key]
     is_correct = confidences['correct']
     labels = confidences['labels']
 
