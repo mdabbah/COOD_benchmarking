@@ -3,11 +3,11 @@ import itertools
 import pandas as pd
 import torch.nn
 
-from model_handling_utilities import get_model_name, args_dict_to_str, get_dataset_name, handle_parameters, \
+from utils.input_handling_utilities import get_model_name, args_dict_to_str, get_dataset_name, handle_parameters, \
     handle_model_dict_input, get_kappa_name, sanity_check_confidence_input, CONFIDENCE_METRIC_INPUT_ERR_MSG, \
     sanity_model_input, MODEL_INPUT_ERR_MSG
 from utils.data_utils import load_model_results, create_dataset_metadata, save_model_results, create_data_loader, \
-    load_dataset_metadata, get_dataset_num_of_classes, load_model_results_df
+    get_dataset_num_of_classes, load_model_results_df
 import numpy as np
 
 from utils.kappa_extractors import extract_softmax_signals_on_dataset, extract_MC_dropout_on_dataset, \
