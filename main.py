@@ -6,28 +6,36 @@ if __name__ == '__main__':
     results2 = benchmark_model_on_cood_with_severities(model='resnet50')
     plotly.express.line(results2, x='severity_levels', y='cood-auroc', color='model_name-kappa')
 
-
-    default_ood_dataset_info = {
-        'dataset_name': 'ImageNet_20K',
-        'images_base_folder': '<path to images dir>',  # <path to images dir>/classname/*.(jpg|png|jpeg)
+    # example_ood_dataset_info = {
+    #     'dataset_name': 'ImageNet_20K',
+    #     'images_base_folder': '<path to images dir>',  # <path to images dir>/classname/*.(jpg|png|jpeg)
+    #     'test_estimation_split_percentage': 0.25
+    # }
+    # example_id_dataset_info = {
+    #     'dataset_name': 'ImageNet_1K',
+    #     'images_base_folder': '<path to images dir>',
+    # }
+    dummy_ood_dataset_info = {
+        'dataset_name': 'Dummy_OOD',
+        'images_base_folder': '.\dummy_dataset\dummy_ood',  # <path to images dir>/classname/*.(jpg|png|jpeg)
         'test_estimation_split_percentage': 0.25
     }
 
-    default_id_dataset_info = {
-        'dataset_name': 'ImageNet_1K',
-        'images_base_folder': '<path to images dir>',
+    dummy_id_dataset_info = {
+        'dataset_name': 'Dummy_ID',
+        'images_base_folder': '.\dummy_dataset\dummy_id',
     }
 
     results2 = benchmark_model_on_cood_with_severities(model=['resnet50', 'resnet18'],
-                                                       confidence_metric=['softmax_conf', 'entropy_conf'],
-                                                       cood_dataset_info=default_ood_dataset_info,
-                                                       id_dataset_info=default_id_dataset_info)
+                                                       confidence_metric=['softmax', 'entropy'],
+                                                       cood_dataset_info=dummy_ood_dataset_info,
+                                                       id_dataset_info=dummy_id_dataset_info)
     plotly.express.line(results2, x='severity_levels', y='cood-auroc', color='model_name-kappa')
 
 
 
     results = benchmark_model_on_cood_with_severities(model=['resnet50', 'resnet18'],
-                                                      confidence_metric=['softmax_conf', 'entropy_conf'],
+                                                      confidence_metric=['softmax', 'entropy'],
                                                       confidence_args=None,
                                                       cood_dataset_info='default',
                                                       id_dataset_info='default', num_severity_levels=11,
@@ -35,7 +43,7 @@ if __name__ == '__main__':
 
     plotly.express.line(results, x='severity_levels', y='cood-auroc', color='model_name-kappa')
 
-    results1 = benchmark_model_on_cood_with_severities(model='resnet50', confidence_metric='softmax_conf')
+    results1 = benchmark_model_on_cood_with_severities(model='resnet50', confidence_metric='softmax')
 
     results2 = benchmark_model_on_cood_with_severities(model='resnet50')
 
@@ -59,7 +67,7 @@ if __name__ == '__main__':
     from utils.kappa_extractors import extract_softmax_on_dataset
 
     example_kappa_input = extract_softmax_on_dataset
-    example_kappa_input1 = {'confidence_metric_name': 'softmax_conf',
+    example_kappa_input1 = {'confidence_metric_name': 'softmax',
                             'confidence_metric_callable': extract_softmax_on_dataset}  # recommended
 
     example_kappa_input2 = {'confidence_metric_callable': extract_softmax_on_dataset}
