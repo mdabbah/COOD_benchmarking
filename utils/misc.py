@@ -7,9 +7,9 @@ import timm
 import torch
 # from timm_lib.timm.data import resolve_data_config, create_transform
 from timm.data import resolve_data_config, create_transform
-import old_timm_lib
-from old_timm_lib.timm.data import resolve_data_config as old_resolve_data_config
-from old_timm_lib.timm.data import create_transform as old_create_transform
+import utils.old_timm_lib
+from utils.old_timm_lib.timm.data import resolve_data_config as old_resolve_data_config
+from utils.old_timm_lib.timm.data import create_transform as old_create_transform
 # from timm.data import resolve_data_config, create_transform
 from torchvision import transforms
 import clip
