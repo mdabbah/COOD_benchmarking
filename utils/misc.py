@@ -3,7 +3,7 @@ import sys
 
 import pandas as pd
 import numpy as np
-# import timm
+import timm
 import torch
 # from timm_lib.timm.data import resolve_data_config, create_transform
 from timm.data import resolve_data_config, create_transform
@@ -291,16 +291,6 @@ def create_model_and_transforms(model_name, pretrained=True, models_dir='./timmR
         model = tnt_s_patch16_224(pretrained=pretrained).eval().cuda()
         config = resolve_data_config({}, model=model)
         transform = create_transform(**config)
-    elif 'resnet50_seed' in model_name:
-        checkpoint_path = f'{models_dir}/{model_name.split("_")[1]}/{weights_generic_name}'
-        # model = timm_lib.create_model('resnet50', pretrained=False, checkpoint_path=checkpoint_path)
-        model = timm_lib.create_model('resnet50', pretrained=False)
-        checkpoint = torch.load(checkpoint_path)
-        model.load_state_dict(checkpoint['state_dict'], strict=False)
-        model = model.eval().cuda()
-        # Creating the model specific data transformation
-        config = resolve_data_config({}, model=model)
-        transform = create_transform(**config)
     elif 'CLIP' in model_name:
         architecture = model_name.replace('CLIP_', '')
         if 'finetuned' in model_name:
@@ -310,7 +300,7 @@ def create_model_and_transforms(model_name, pretrained=True, models_dir='./timmR
             finetuned = False
         architecture = architecture.replace('~', '/')
         model, transform = clip.load(architecture, device="cuda")
-        from clip_imagenet_classes import ImageNetClip
+        from utils.clip_imagenet_classes import ImageNetClip
         model = ImageNetClip(model, preprocess=transform, linear_probe=finetuned, name=model_name)
     elif 'facebookSWAG' in model_name:
         architecture = model_name.replace('_facebookSWAG', '')
@@ -347,7 +337,7 @@ def create_model_and_transforms(model_name, pretrained=True, models_dir='./timmR
 
         drop_rate = drop_rate_dict.get(architecture, 0.1)
         print(f'for {model_name} we gave dropout rate of {drop_rate}')
-        model = timm_lib.models.create_model(architecture, pretrained=pretrained, drop_rate=drop_rate).eval().cuda()
+        model = timm.create_model(architecture, pretrained=pretrained, drop_rate=drop_rate).eval().cuda()
         # model = model.as_sequential()
         # Creating the model specific data transformation
         config = old_resolve_data_config({}, model=model)
@@ -355,7 +345,7 @@ def create_model_and_transforms(model_name, pretrained=True, models_dir='./timmR
 
     else:
         architecture = model_name.replace('_mcd', '')
-        model = timm_lib.models.create_model(architecture, pretrained=pretrained).eval().cuda()
+        model = timm.create_model(architecture, pretrained=pretrained).eval().cuda()
         # Creating the model specific data transformation
         config = resolve_data_config({}, model=model)
         transform = create_transform(**config)
