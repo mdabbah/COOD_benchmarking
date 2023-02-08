@@ -65,9 +65,9 @@ def handle_model_dict_input(model_dict: Dict):
 
 
 def sanity_check_confidence_input(confidence_metric):
-    if isinstance(confidence_metric, str) and confidence_metric in ['softmax_conf', 'entropy_conf', 'mcd_entropy',
+    if isinstance(confidence_metric, str) and confidence_metric in ['softmax', 'entropy', 'mcd_entropy',
                                                                     'mutual_information',
-                                                                    'mcd_softmax', 'odin_conf', 'max_logit_conf']:
+                                                                    'mcd_softmax', 'odin', 'max_logit']:
         return True
 
     if callable(confidence_metric):
@@ -78,9 +78,9 @@ def sanity_check_confidence_input(confidence_metric):
 
 CONFIDENCE_METRIC_INPUT_ERR_MSG = "confidence metric input needs to be either a callble fuction or a string or a dict " \
                                   "with a key confidence_metric_callable with the value being a callable.\n" \
-                                  "if the input is a string it needs to be one of ['softmax_conf', 'entropy_conf', 'mcd_entropy',\
+                                  "if the input is a string it needs to be one of ['softmax', 'entropy', 'mcd_entropy',\
                                                                     'mutual_information',\
-                                                                    'mcd_softmax', 'odin_conf', 'max_logit_conf']"
+                                                                    'mcd_softmax', 'odin', 'max_logit']"
 
 
 def sanity_model_input(model):
