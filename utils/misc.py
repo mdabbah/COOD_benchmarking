@@ -5,7 +5,8 @@ import pandas as pd
 import numpy as np
 # import timm
 import torch
-from timm_lib.timm.data import resolve_data_config, create_transform
+# from timm_lib.timm.data import resolve_data_config, create_transform
+from timm.data import resolve_data_config, create_transform
 import old_timm_lib
 from old_timm_lib.timm.data import resolve_data_config as old_resolve_data_config
 from old_timm_lib.timm.data import create_transform as old_create_transform
@@ -16,9 +17,9 @@ import clip
 # pip install ftfy regex tqdm
 # pip install git+https://github.com/openai/CLIP.git
 
-from custome_dataset import get_open_img_transforms
-from data_utils import load_model_results, save_model_results, get_results_base_path
-from log_utils import Logger
+from utils.custom_dataset import get_open_img_transforms
+from utils.data_utils import load_model_results, save_model_results, get_results_base_path
+from utils.log_utils import Logger
 
 import torchvision.transforms as tvtf
 
@@ -26,7 +27,7 @@ import timm.models.resnetv2 as timm_bit
 import timm.models.resnet as timm_resnet
 import torchvision.models as torchvision_models
 
-from timm_lib import timm as timm_lib
+# from timm_lib import timm as timm_lib
 
 
 def normalize(a):

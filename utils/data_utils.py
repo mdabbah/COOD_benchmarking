@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from utils.custome_dataset import CustomedDataset
+from utils.custom_dataset import CustomedDataset
 from utils.project_paths import get_results_base_path, get_datasets_metadata_base_path
 
 

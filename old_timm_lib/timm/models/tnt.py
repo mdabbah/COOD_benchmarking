@@ -11,11 +11,11 @@ import torch
 import torch.nn as nn
 from functools import partial
 
-from timm.data import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
-from timm.models.helpers import load_pretrained
-from timm.models.layers import DropPath, trunc_normal_
-from timm.models.vision_transformer import Mlp
-from timm.models.registry import register_model
+from old_timm_lib.timm.data import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+from old_timm_lib.timm.models.helpers import load_pretrained
+from old_timm_lib.timm.models.layers import DropPath, trunc_normal_
+from old_timm_lib.timm.models.vision_transformer import Mlp
+from old_timm_lib.timm.models.registry import register_model
 
 
 def _cfg(url='', **kwargs):
