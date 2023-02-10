@@ -6,9 +6,9 @@ import torch
 import torch.nn.functional as F
 from torch.distributions import Categorical
 
-from log_utils import Timer, Logger
-from uncertainty_metrics import gamma_correlation, ECE_calc, AURC_calc, gini
-from misc import to_cpu, MC_Dropout_Pass, enable_dropout
+from utils.log_utils import Timer, Logger
+from utils.uncertainty_metrics import gamma_correlation, ECE_calc, AURC_calc, gini
+from utils.misc import to_cpu, MC_Dropout_Pass, enable_dropout
 
 
 def calc_l2_dist_fast_torch(mat_a, mat_b):
