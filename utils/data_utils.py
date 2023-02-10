@@ -32,7 +32,7 @@ def get_dataset_num_of_classes(dataset_info_dict):
     dataset_name = dataset_info_dict['dataset_name']
 
     dataset_meta_data = load_dataset_metadata(dataset_name)
-    classes = dataset_meta_data['classes']
+    classes = dataset_meta_data['class_names']
     return len(classes)
 
 
@@ -46,7 +46,11 @@ def create_dataset_metadata(dataset_info_dict, is_id_dataset=False):
 
     dataset_base_folder = dataset_info_dict['images_base_folder']
 
-    image_files = glob.glob(f'{dataset_base_folder}/*/*.(jpg|png|jpeg)')
+    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.JPEG']
+
+    image_files = []
+    for extension in image_extensions:
+        image_files.extend(glob.glob(f'{dataset_base_folder}/*/*{extension}', recursive=True))
 
     class_names = [os.path.basename(os.path.dirname(f)) for f in image_files]
     class_names, labels = np.unique(class_names, return_inverse=True)
@@ -65,20 +69,25 @@ def create_dataset_metadata(dataset_info_dict, is_id_dataset=False):
 
     save_pickle(dataset_metadata_path, meta_data)
 
+# def get_dataset_meta
 
-def load_dataset_metadata(dataset_name, version='most_updated'):
+
+def load_dataset_metadata(dataset_name):
     """
     :param dataset_name: the dataset to load metadata for
     :return: a dictionary of metadata
     that most importantly contains instances paths and labels.
     """
+    from glob import glob
+    datasets_metadata_base_path = get_datasets_metadata_base_path()
 
-    metadata_path = {'ImageNet_21K': ImageNet_21K_METADATA, 'ImageNet_20K': ImageNet_20K_METADATA,
-                     'ImageNet_1K': ImageNet_1K_METADATA}[dataset_name]
-    if version != 'most_updated':
-        curr_version = os.path.dirname(metadata_path).split('_v')[1]
-        metadata_path = metadata_path.replace(f'_v{curr_version}', f'_v{version}')
+    available_datasets = glob(datasets_metadata_base_path + '/*metadata.pkl')
 
+    metadata_datasets = {os.path.basename(ds).split('_metadata.pkl')[0]: ds for ds in available_datasets}
+
+    metadata_path = metadata_datasets.get(dataset_name)
+    if metadata_path is None:
+        return None
     metadata = load_pickle(metadata_path)
     return metadata
 
@@ -90,11 +99,12 @@ def load_ds_img_paths_and_labels(dataset_name, ds_subset=None):
     (relevant for ImageNet_1K)
     :return: tuple: img_paths, labels
     """
-    metadata_path = {'ImageNet_21K': ImageNet_21K_METADATA, 'ImageNet_20K': ImageNet_20K_METADATA,
-                     'ImageNet_1K': ImageNet_1K_METADATA, 'ImageNet_O': ImageNet_O_METADATA}[dataset_name]
+    metadata = load_dataset_metadata(dataset_name)
+    if metadata is None:
+        raise ValueError('given dataset meta data does not exist.\nthis should not happen')
 
-    metadata = load_pickle(metadata_path)
-    img_paths = norm_paths(dataset_name, metadata['image_files'])
+    # img_paths = norm_paths(dataset_name, metadata['image_files'])
+    img_paths = metadata['image_files']
     labels = metadata['labels']
 
     if ds_subset is not None:
@@ -115,19 +125,19 @@ def load_ds_img_paths_and_labels(dataset_name, ds_subset=None):
     return img_paths, labels
 
 
-def norm_paths(dataset_name, img_paths):
-    if dataset_name not in ('ImageNet_21K', 'ImageNet_20K', 'ImageNet_1K', 'ImageNet_O'):
-        raise ValueError(f'dataset {dataset_name} not supported yet.')
-
-    base_folders_mappings = {'ImageNet_21K': (ImageNet_21K_BASE_FOLDER, 'fall11_whole/'),
-                             'ImageNet_20K': (ImageNet_21K_BASE_FOLDER, 'fall11_whole/'),
-                             'ImageNet_1K': (ImageNet_1K_BASE_FOLDER, 'ImageNet_1K/'),
-                             'ImageNet_O': (ImageNet_O_BASE_FOLDER, 'imagenet-o/')}
-
-    new_base_folder, old_base_folder = base_folders_mappings[dataset_name]
-    img_paths = [os.path.join(new_base_folder, img.split(old_base_folder)[1]) for img in img_paths]
-
-    return np.array(img_paths)
+# def norm_paths(dataset_name, img_paths):
+#     if dataset_name not in ('ImageNet_21K', 'ImageNet_20K', 'ImageNet_1K', 'ImageNet_O'):
+#         raise ValueError(f'dataset {dataset_name} not supported yet.')
+#
+#     base_folders_mappings = {'ImageNet_21K': (ImageNet_21K_BASE_FOLDER, 'fall11_whole/'),
+#                              'ImageNet_20K': (ImageNet_21K_BASE_FOLDER, 'fall11_whole/'),
+#                              'ImageNet_1K': (ImageNet_1K_BASE_FOLDER, 'ImageNet_1K/'),
+#                              'ImageNet_O': (ImageNet_O_BASE_FOLDER, 'imagenet-o/')}
+#
+#     new_base_folder, old_base_folder = base_folders_mappings[dataset_name]
+#     img_paths = [os.path.join(new_base_folder, img.split(old_base_folder)[1]) for img in img_paths]
+#
+#     return np.array(img_paths)
 
 
 def combine_datasets(dataset_names, ds_subsets):
@@ -224,20 +234,20 @@ def save_model_results_df(df: pd.DataFrame, model_name, data_name):
     df.to_csv(save_path, index=False)
 
 
-def split_dataset(labels, percentage):
+def split_dataset(labels, test_percentage):
     train_idx = []
     val_idx = []
     classes = np.unique(labels)
     classes_samples = {c: [] for c in classes}
-
+    train_percentage = 1 - test_percentage
     for s, l in enumerate(labels):
         classes_samples[l].append(s)
 
     for c in classes:
         class_samples = np.random.permutation(np.array(classes_samples[c]))
-        num_train_samples = int(percentage * len(class_samples))
-        assert len(class_samples) == 200
-        assert num_train_samples == 150
+        num_train_samples = int(train_percentage * len(class_samples))
+        # assert len(class_samples) == 200
+        # assert num_train_samples == 150
         train_idx.extend(class_samples[:num_train_samples])
         val_idx.extend(class_samples[num_train_samples:])
 

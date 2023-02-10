@@ -3,8 +3,8 @@ import plotly.express
 from cood_uncertainty_lib import benchmark_model_on_cood_with_severities
 
 if __name__ == '__main__':
-    results2 = benchmark_model_on_cood_with_severities(model='resnet50')
-    plotly.express.line(results2, x='severity_levels', y='cood-auroc', color='model_name-kappa')
+    # results2 = benchmark_model_on_cood_with_severities(model='resnet50')
+    # plotly.express.line(results2, x='severity_levels', y='cood-auroc', color='model_name-kappa')
 
     # example_ood_dataset_info = {
     #     'dataset_name': 'ImageNet_20K',
@@ -17,13 +17,15 @@ if __name__ == '__main__':
     # }
     dummy_ood_dataset_info = {
         'dataset_name': 'Dummy_OOD',
-        'images_base_folder': '.\dummy_dataset\dummy_ood',  # <path to images dir>/classname/*.(jpg|png|jpeg)
+        # 'images_base_folder': '.\dummy_dataset\dummy_ood',  # <path to images dir>/classname/*.(jpg|png|jpeg)
+        'images_base_folder': '/media/mohammed/Elements1/exported_datasets/dummy_ood',  # <path to images dir>/classname/*.(jpg|png|jpeg)
         'test_estimation_split_percentage': 0.25
     }
 
     dummy_id_dataset_info = {
         'dataset_name': 'Dummy_ID',
-        'images_base_folder': '.\dummy_dataset\dummy_id',
+        # 'images_base_folder': '.\dummy_dataset\dummy_id',
+        'images_base_folder': '/media/mohammed/Elements1/exported_datasets/dummy_id'
     }
 
     results2 = benchmark_model_on_cood_with_severities(model=['resnet50', 'resnet18'],
