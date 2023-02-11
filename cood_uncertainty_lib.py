@@ -21,7 +21,7 @@ from utils.misc import create_model_and_transforms_OOD, log_ood_results, default
 
 def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subsets, batch_size,
                                             num_workers, function, confidence_args=None):
-    print(f"Running on rank {rank}.")
+    # print(f"Running on rank {rank}.")
 
     # create model and move it to GPU with id rank
     model_name = get_model_name(model)
@@ -55,7 +55,7 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
         function = function['confidence_metric_callable']
 
     function = get_confidence_function(function)
-    with Timer(f'time on {datasets_subsets} is:'):
+    with Timer(f'time to extract confidence signals on {datasets_subsets} is:'):
             results = function(model, all_data_loader, device=rank, confidence_args=confidence_args)
 
     del model
