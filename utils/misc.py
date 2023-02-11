@@ -27,8 +27,6 @@ import timm.models.resnetv2 as timm_bit
 import timm.models.resnet as timm_resnet
 import torchvision.models as torchvision_models
 
-# from timm_lib import timm as timm_lib
-
 
 def normalize(a):
     a = np.array(a)
@@ -280,28 +278,12 @@ def create_model_and_transforms(model_name, pretrained=True, models_dir='./timmR
                                                               layers=[3, 4, 6, 3], width_factor=1).eval().cuda()
         config = resolve_data_config({}, model=model)
         transform = create_transform(**config)
-    elif 'resnet50_pruned' in model_name:  # It's a pruned resnet50 model
-        prune_level = [int(s) for s in model_name.split('_') if s.isdigit()]
-        assert len(prune_level) == 1
-        model = _create_resnet50_pruned(prune_level[0], pretrained,
-                                        **dict(block=timm_resnet.Bottleneck, layers=[3, 4, 6, 3])).eval().cuda()
-        transform = default_transform
-    elif 'tnt_s_patch16_224' in model_name:
-        from timm_lib.timm.models.tnt import tnt_s_patch16_224
-        model = tnt_s_patch16_224(pretrained=pretrained).eval().cuda()
-        config = resolve_data_config({}, model=model)
-        transform = create_transform(**config)
     elif 'CLIP' in model_name:
         architecture = model_name.replace('CLIP_', '')
-        if 'finetuned' in model_name:
-            architecture = architecture.replace('finetuned_', '')
-            finetuned = True
-        else:
-            finetuned = False
         architecture = architecture.replace('~', '/')
         model, transform = clip.load(architecture, device="cuda")
         from utils.clip_imagenet_classes import ImageNetClip
-        model = ImageNetClip(model, preprocess=transform, linear_probe=finetuned, name=model_name)
+        model = ImageNetClip(model, preprocess=transform, linear_probe=False, name=model_name)
     elif 'facebookSWAG' in model_name:
         architecture = model_name.replace('_facebookSWAG', '')
         model = torch.hub.load("facebookresearch/swag", model=architecture).eval().cuda()
@@ -313,38 +295,13 @@ def create_model_and_transforms(model_name, pretrained=True, models_dir='./timmR
              tvtf.ToTensor(), tvtf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
     elif 'vit' in model_name and 'original' in model_name:
         architecture = model_name.replace('_original', '')
-        architecture = architecture.replace('_mcd', '')
-        if 'mcd' in model_name:
-            model = old_timm_lib.timm.models.create_model(architecture, pretrained=pretrained,
-                                                          drop_rate=0.1).eval().cuda()
-        else:
-            model = old_timm_lib.timm.models.create_model(architecture, pretrained=pretrained).eval().cuda()
+        model = utils.old_timm_lib.timm.models.create_model(architecture, pretrained=pretrained).eval().cuda()
         # Creating the model specific data transformation
         config = old_resolve_data_config({}, model=model)
         transform = old_create_transform(**config)
         print(f'for {model_name} we gave dropout rate of 0.1')
-
-    elif 'efficientnet' in model_name and '_mcd' in model_name:
-        architecture = model_name.replace('_mcd', '')
-        drop_rate_dict = {'efficientnet_b0': 0.1, 'efficientnet_b1': 0.1, 'efficientnet_b2': 0.1,
-                          'efficientnet_b3': 0.1, 'efficientnet_b4': 0.1, 'efficientnet_b5': 0.1,
-                          'efficientnet_b6': 0.1, 'efficientnet_b7': 0.1,
-
-                          'tf_efficientnetv2_s': 0.1, 'tf_efficientnetv2_m': 0.1, 'tf_efficientnetv2_l': 0.1,
-                          'tf_efficientnetv2_s_in21ft1k': 0.1, 'tf_efficientnetv2_m_in21ft1k': 0.1,
-                          'tf_efficientnetv2_l_in21ft1k': 0.1, 'tf_efficientnetv2_xl_in21ft1k': 0.1,
-                          }
-
-        drop_rate = drop_rate_dict.get(architecture, 0.1)
-        print(f'for {model_name} we gave dropout rate of {drop_rate}')
-        model = timm.create_model(architecture, pretrained=pretrained, drop_rate=drop_rate).eval().cuda()
-        # model = model.as_sequential()
-        # Creating the model specific data transformation
-        config = old_resolve_data_config({}, model=model)
-        transform = old_create_transform(**config)
-
     else:
-        architecture = model_name.replace('_mcd', '')
+        architecture = model_name
         model = timm.create_model(architecture, pretrained=pretrained).eval().cuda()
         # Creating the model specific data transformation
         config = resolve_data_config({}, model=model)
