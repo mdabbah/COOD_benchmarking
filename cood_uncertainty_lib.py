@@ -10,7 +10,8 @@ from utils.data_utils import load_model_results, create_dataset_metadata, save_m
     get_dataset_num_of_classes, load_model_results_df
 import numpy as np
 
-from utils.kappa_extractors import extract_softmax_signals_on_dataset, extract_MC_dropout_on_dataset, \
+from utils.kappa_dispatcher import get_confidence_function
+from utils.kappa_extractors import extract_softmax_signals_on_dataset, extract_MC_dropout_signals_on_dataset, \
     get_dataset_last_activations, extract_odin_confidences_on_dataset, get_dataset_embeddings, calc_OOD_metrics
 from utils.log_utils import Timer
 from utils.models_wrapper import MySimpleWrapper
@@ -23,18 +24,20 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
     print(f"Running on rank {rank}.")
 
     # create model and move it to GPU with id rank
+    model_name = get_model_name(model)
     transform = None
     if isinstance(model, str):
         model, transform = create_model_and_transforms_OOD(model, pretrained=True)
     elif isinstance(model, dict):
         model, transform = handle_model_dict_input(model)
-
+    elif isinstance(model, torch.nn.Module):
+        transform = None
+    else:
+        raise ValueError(f'unrecognized model input form {type(model)}')
     assert isinstance(model, torch.nn.Module)
 
     if transform is None:
         transform = default_transform
-    else:
-        raise ValueError(f'unrecognized model input form {type(model)}')
 
     # create the data loader.
     all_data_loader = create_data_loader(datasets,
@@ -42,55 +45,32 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
                                          num_workers=num_workers,
                                          transform=transform)
 
-    model = MySimpleWrapper(model.cuda(rank), model_name=model)
+    #####
+    # if dealing with dummy dataset we prone the classification layer to include only
+    # ID dummy dataset classes.
+    #####
+
+    model = MySimpleWrapper(model.cuda(rank), model_name=model_name, datasets=datasets)
     if isinstance(function, dict):
         function = function['confidence_metric_callable']
 
-
+    function = get_confidence_function(function)
     with Timer(f'time on {datasets_subsets} is:'):
-        if callable(function):
-            results = function(model, all_data_loader, device=rank)
-
-        elif function in ['softmax_conf', 'entropy_conf', 'max_logit_conf']:
-            results = extract_softmax_signals_on_dataset(model, all_data_loader, device=rank)
-
-        elif function in ['mcd_entropy', 'mutual_information', 'mcd_softmax']:
-            results = extract_MC_dropout_on_dataset(model, all_data_loader, device=rank)
-
-        elif function == 'last_layer_activations':
-            results = get_dataset_last_activations(model, all_data_loader, device=rank)
-
-        elif function == 'odin_conf':
-            results = extract_odin_confidences_on_dataset(model, all_data_loader, device=rank, confidence_args=confidence_args)
-
-        elif function == 'embeddings':
-
-            results = get_dataset_embeddings(model, all_data_loader, device=rank)
-
+            results = function(model, all_data_loader, device=rank, confidence_args=confidence_args)
 
     del model
-    # save_model_results(model_name, results, f'{tag}_{rank}')
-    print(f'for rank {rank} here are the results')
     return results
 
 
+def aggregate_results_from_batches(results, axis=None):
 
-
-def aggregate_confidences(results_list, axis=None):
-    confidences = {k: [] for k in results_list[0].keys()}
-
-    for r in results_list:
-        for k, v in confidences.items():
-            v.extend(r[k])
-
-    confidences = {k: np.concatenate(v, axis=axis) for k, v in confidences.items()}
+    confidences = {k: np.concatenate(v, axis=axis) for k, v in results.items()}
     return confidences
 
 
 def get_cood_benchmarking_datasets(model, confidence_metric='softmax_conf', confidence_args=None,
                                    cood_dataset_info='default', num_severity_levels=11, num_id_classes=1000,
                                    batch_size=64, num_workers=2, rank=0, force_run=False, confidence_key='confidences'):
-
     assert sanity_check_confidence_input(confidence_metric), CONFIDENCE_METRIC_INPUT_ERR_MSG
     assert sanity_model_input(confidence_metric), MODEL_INPUT_ERR_MSG
 
@@ -121,13 +101,10 @@ def get_cood_benchmarking_datasets(model, confidence_metric='softmax_conf', conf
                                                           datasets_subsets=['train'],
                                                           batch_size=batch_size,
                                                           num_workers=num_workers,
-                                                          function=confidence_metric_name,
+                                                          function=confidence_metric,
                                                           confidence_args=confidence_args)
 
-        print(f'we got val results list')
-
-        results_list = [results]
-        train_ood_confidences = aggregate_confidences(results_list)
+        train_ood_confidences = aggregate_results_from_batches(results)
         save_model_results(model_name, train_ood_confidences, confidence_file_tag)
 
     # part 2: create severity levels
@@ -217,8 +194,6 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
 
     # get cood datasets classes
     cood_classes = severity_levels_info['severity_levels_groups']
-    # cood_classes = severity_levels_info['severity_levels_groups'][levels_to_benchmark]
-    # cood_classes = 'val'
 
     confidence_file_tag = f'stats_{partial_tag}{confidence_args_str}_all_val'
     validation_confidences = load_model_results(model_name, confidence_file_tag)
@@ -226,16 +201,12 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
         results = apply_model_function_on_dataset_samples(rank=rank, model=model,
                                                           datasets=[id_dataset_name, cood_dataset_name],
                                                           datasets_subsets=['val', 'val'],
-                                                          # datasets_subsets=['val', cood_classes],
                                                           batch_size=batch_size,
                                                           num_workers=num_workers,
                                                           function=confidence_metric,
                                                           confidence_args=confidence_args)
 
-        print(f'we got val results list')
-
-        results_list = [results]
-        validation_confidences = aggregate_confidences(results_list)
+        validation_confidences = aggregate_results_from_batches(results)
         save_model_results(model_name, validation_confidences, confidence_file_tag)
 
     # part 4: evaluate the OOD performance
@@ -249,6 +220,6 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
 
     model_results = log_ood_results(model_info, ood_results, results_file_tag, percentiles)
 
-    model_results = model_results[model_results.severity_levels.isin(levels_to_benchmark)]
+    model_results = model_results[model_results['severity_level'].isin(levels_to_benchmark)]
 
     return model_results

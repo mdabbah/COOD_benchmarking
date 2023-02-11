@@ -29,11 +29,18 @@ def load_pickle(path):
 
 
 def get_dataset_num_of_classes(dataset_info_dict):
-    dataset_name = dataset_info_dict['dataset_name']
+    return len(get_dataset_classes(dataset_info_dict))
+
+
+def get_dataset_classes(dataset_info_dict_or_name):
+    if isinstance(dataset_info_dict_or_name, str):
+        dataset_name = dataset_info_dict_or_name
+    else:
+        dataset_name = dataset_info_dict_or_name['dataset_name']
 
     dataset_meta_data = load_dataset_metadata(dataset_name)
     classes = dataset_meta_data['class_names']
-    return len(classes)
+    return classes
 
 
 def create_dataset_metadata(dataset_info_dict, is_id_dataset=False):
@@ -52,6 +59,7 @@ def create_dataset_metadata(dataset_info_dict, is_id_dataset=False):
     for extension in image_extensions:
         image_files.extend(glob.glob(f'{dataset_base_folder}/*/*{extension}', recursive=True))
 
+    image_files = np.array(image_files)
     class_names = [os.path.basename(os.path.dirname(f)) for f in image_files]
     class_names, labels = np.unique(class_names, return_inverse=True)
 
@@ -68,6 +76,7 @@ def create_dataset_metadata(dataset_info_dict, is_id_dataset=False):
                  'train_idx': train_idx, 'val_idx': val_idx, 'num_classes': len(class_names)}
 
     save_pickle(dataset_metadata_path, meta_data)
+
 
 # def get_dataset_meta
 

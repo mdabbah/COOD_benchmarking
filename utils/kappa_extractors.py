@@ -314,7 +314,7 @@ def calc_per_class_severity(confidence_results, confidence_field_name):
     return per_class_severity_sum / per_class_counts
 
 
-def extract_MC_dropout_on_dataset(model, all_data_loader, device):
+def extract_MC_dropout_signals_on_dataset(model, all_data_loader, confidence_args=None, device='cpu'):
     """
 
      :param model:
@@ -369,14 +369,65 @@ def extract_MC_dropout_on_dataset(model, all_data_loader, device):
 
     return confidences
 
-
-def extract_softmax_on_dataset(model, data_loader, device):
+def extract_mcd_entropy_on_dataset(model, all_data_loader, confidence_args=None, device='cpu'):
     """
 
-    :param model:
-    :param data_loader:
-    :param device:
-    :return:
+     :param model:
+     :param all_data_loader:
+     :param device:
+     :return:
+     """
+
+    model.eval()
+    enable_dropout(model)
+    model.float()
+
+    confidences = {'confidences': [], 'correct': [], 'predictions': [], 'labels': []}
+
+    with torch.no_grad():
+        for x, y in all_data_loader:
+            x = x.float().to(f'cuda:{device}')
+
+            res_dict = MC_Dropout_Pass(x, model, dropout_iterations=30, classification=True)
+
+            predictions = to_cpu(res_dict['label_predictions'])
+            correct = y.numpy() == predictions
+
+            probs = res_dict['mean_p']
+            softmax_conf, _ = torch.max(probs, dim=1)
+            confidences['confidences'].append(to_cpu(res_dict['entropy_conf']))
+
+            confidences['correct'].append(correct)
+            confidences['predictions'].append(predictions)
+            confidences['labels'].append(y.numpy())
+
+
+            del x
+            del probs
+            del softmax_conf
+            del res_dict
+
+            # if batch_idx == 3:
+            #     break
+
+    return confidences
+
+
+def extract_softmax_on_dataset(model, data_loader, confidence_args=None, device='cpu'):
+    """
+    This function calculates the softmax confidence of the predictions made by a model on a given dataset.
+
+    :param model: The model that will be used to make predictions on the data.
+    :param data_loader: The data loader that provides the data that the model will be evaluated on.
+    :param confidence_args: Not used in this implementation, but included in the function signature to support other types of kappas that may require auxiliary arguments.
+    :param device: The device (cpu or cuda) to run the computations on. Default is 'cpu'.
+    :return: A dictionary containing the following items:
+        - 'confidences': A list of the softmax confidence values for each prediction.
+        - 'correct': A list of Boolean values indicating whether each prediction was correct.
+        - 'predictions': A list of the predicted labels for each data point.
+        - 'labels': A list of the true labels for each data point.
+
+    this documentation was written by chatGPT
     """
 
     model.eval()
@@ -407,7 +458,7 @@ def extract_softmax_on_dataset(model, data_loader, device):
     return confidences
 
 
-def extract_entropy_on_dataset(model, all_data_loader, device):
+def extract_entropy_on_dataset(model, all_data_loader, confidence_args=None, device='cpu'):
     """
 
     :param model:
@@ -444,7 +495,7 @@ def extract_entropy_on_dataset(model, all_data_loader, device):
     return confidences
 
 
-def extract_max_logit_on_dataset(model, all_data_loader, device):
+def extract_max_logit_on_dataset(model, all_data_loader, confidence_args=None, device='cpu'):
     """
 
     :param model:
@@ -480,7 +531,7 @@ def extract_max_logit_on_dataset(model, all_data_loader, device):
     return confidences
 
 
-def extract_odin_confidences_on_dataset(model, all_data_loader, device, confidence_args=None):
+def extract_odin_confidences_on_dataset(model, all_data_loader, confidence_args=None, device='cpu'):
     """ implements: https://arxiv.org/pdf/1706.02690.pdf"""
 
     if confidence_args is None:
@@ -576,7 +627,7 @@ def extract_odin_confidences_on_dataset(model, all_data_loader, device, confiden
     return confidences
 
 
-def extract_softmax_signals_on_dataset(model, all_data_loader, device):
+def extract_softmax_signals_on_dataset(model, all_data_loader, confidence_args=None, device='cpu'):
     """
 
     :param model:
@@ -591,9 +642,6 @@ def extract_softmax_signals_on_dataset(model, all_data_loader, device):
     confidences = {'softmax_conf': [], 'entropy_conf': [], 'correct': [], 'predictions': [], 'labels':
         [], 'max_logit_conf': []}
 
-    progress_log = Logger('./progress_log.txt', ['init'], False)
-    batch_idx = 0
-    num_batches = len(all_data_loader)
     with torch.no_grad():
         for x, y in all_data_loader:
             x = x.float().to(f'cuda:{device}')
@@ -614,22 +662,16 @@ def extract_softmax_signals_on_dataset(model, all_data_loader, device):
             max_logit_conf = torch.max(logits, dim=1)[0]
             confidences['max_logit_conf'].append(to_cpu(max_logit_conf))
 
-            progress_log.log_msg(f'{model.model_name} on device {device} finished {batch_idx}/{num_batches}  '
-                                 f'time_stamp: {datetime.now()}')
-            batch_idx += 1
 
             del x
             del probs
             del softmax_conf
             del entropy_conf
 
-            # if batch_idx == 3:
-            #     break
-
     return confidences
 
 
-def get_dataset_last_activations(model, all_data_loader, device):
+def get_dataset_last_activations(model, all_data_loader, confidence_args=None, device='cpu'):
     """
     for ensamble methods and temp scaling
     :param model:
@@ -670,7 +712,7 @@ def get_dataset_last_activations(model, all_data_loader, device):
     return confidences
 
 
-def get_dataset_embeddings(model, all_data_loader, device):
+def get_dataset_embeddings(model, all_data_loader, confidence_args=None, device='cpu'):
     """
     for density based kappa
     warning: causes model to lose classification head
@@ -1202,10 +1244,10 @@ def calc_OOD_metrics_on_dataset(confidences, confidence_type):
     return attack_groups_results
 
 
-def calc_OOD_metrics(attack_groups, confidences, confidence_key):
+def calc_OOD_metrics(severity_levels_groups_classes, confidences, confidence_key):
     """
     given attack_groups where each row is a group
-    :param attack_groups:
+    :param severity_levels_groups_classes:
     :param confidences: a dictionary that contains at least the following keys:
     confidence_type : an array of the size of the number of sampels and cell i contains
     the confidence given to sample i.
@@ -1234,25 +1276,25 @@ def calc_OOD_metrics(attack_groups, confidences, confidence_key):
     id_gamma_results = gamma_correlation(sample_certainties, sort=True)
     id_aurc = AURC_calc(sample_certainties, sort=True)
 
-    assert id_confs.shape[0] == 50_000 or id_confs.shape[0] == 45_000
-    attack_groups_results = []
+    # assert id_confs.shape[0] == 50_000 or id_confs.shape[0] == 45_000
+    severity_levels_results = []
 
-    for attack_group in attack_groups:
+    for severity_group_classes in severity_levels_groups_classes:
         # attack_group is a vector of class ids that belong to the groups
-        attack_samples = np.any(attack_group[:, np.newaxis] == labels[np.newaxis, :], axis=0)
+        s_group_samples = np.any(severity_group_classes[:, np.newaxis] == labels[np.newaxis, :], axis=0)
 
-        attack_conf = confs[attack_samples]
-        attack_avg_conf = np.mean(attack_conf)
-        attack_median_conf = np.median(attack_conf)
-        attack_std = np.std(attack_conf, ddof=1)
-        attack_gini = gini(torch.tensor(attack_conf[:, np.newaxis]))
+        ood_conf = confs[s_group_samples]
+        ood_avg_conf = np.mean(ood_conf)
+        cood_median_conf = np.median(ood_conf)
+        cood_std = np.std(ood_conf, ddof=1)
+        cood_gini = gini(torch.tensor(ood_conf[:, np.newaxis]))
 
-        attack_is_correct = is_correct[attack_samples]
-        assert np.sum(attack_is_correct) == 0
-        assert attack_conf.shape[0] == 50_000 or attack_conf.shape[0] == 45_000
+        cood_is_correct = is_correct[s_group_samples]
+        assert np.sum(cood_is_correct) == 0
+        # assert ood_conf.shape[0] == 50_000 or ood_conf.shape[0] == 45_000
 
-        certainties = np.concatenate([attack_conf, id_confs])
-        is_id = np.concatenate([np.zeros_like(attack_conf), np.ones_like(id_confs)])
+        certainties = np.concatenate([ood_conf, id_confs])
+        is_id = np.concatenate([np.zeros_like(ood_conf), np.ones_like(id_confs)])
 
         assert len(is_id) == len(certainties)
 
@@ -1262,17 +1304,17 @@ def calc_OOD_metrics(attack_groups, confidences, confidence_key):
         gamma_results = gamma_correlation(sample_certainties, sort=True)
         aurc = AURC_calc(sample_certainties, sort=True)
 
-        samples_is_correct = np.concatenate([np.zeros_like(attack_conf), id_is_correct])
+        samples_is_correct = np.concatenate([np.zeros_like(ood_conf), id_is_correct])
         sample_certainties = torch.from_numpy(np.stack([certainties, samples_is_correct], axis=1))
         idx = torch.randperm(sample_certainties.shape[0])
         sample_certainties = sample_certainties[idx]
         correctness_gamma_results = gamma_correlation(sample_certainties, sort=True)
         correctness_aurc = AURC_calc(sample_certainties, sort=True)
 
-        ece, mce = ECE_calc(torch.from_numpy(np.stack([attack_conf, np.zeros_like(attack_conf)], axis=1)))
+        ece, mce = ECE_calc(torch.from_numpy(np.stack([ood_conf, np.zeros_like(ood_conf)], axis=1)))
 
-        results = {'ood_avg_conf': attack_avg_conf, 'ood_median_conf': attack_median_conf,
-                   'ood_std': attack_std, 'ood_gini': attack_gini,
+        results = {'ood_avg_conf': ood_avg_conf, 'ood_median_conf': cood_median_conf,
+                   'ood_std': cood_std, 'ood_gini': cood_gini,
                    'id_avg_conf': id_avg_conf, 'id_median_conf': id_median_conf,
                    'id_std': id_std, 'id_gini': id_gini, 'id_acc': id_acc,
                    'id-gamma': id_gamma_results['gamma'],
@@ -1284,9 +1326,9 @@ def calc_OOD_metrics(attack_groups, confidences, confidence_key):
                    'correctness-aurc': correctness_aurc, 'ece': ece, 'mce': mce,
                    }
 
-        attack_groups_results.append(results)
+        severity_levels_results.append(results)
 
-    return attack_groups_results
+    return severity_levels_results
 
 
 def test_fastest_density_based():

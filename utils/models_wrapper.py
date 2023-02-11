@@ -1,13 +1,17 @@
+import torch
 from torchvision.models.feature_extraction import get_graph_node_names, create_feature_extractor
 
 import torch.nn as nn
 
+from utils.data_utils import get_dataset_classes
+from utils.imagenet1K_synsets import class_to_idx
+from utils.input_handling_utilities import get_dataset_name
 from utils.misc import get_embedding_size
 
 
 class MySimpleWrapper(nn.Module):
 
-    def __init__(self, module, model_name):
+    def __init__(self, module, model_name, datasets=None):
         super(MySimpleWrapper, self).__init__()
         self.module = module
         self.num_features = get_embedding_size(model_name)
@@ -21,11 +25,22 @@ class MySimpleWrapper(nn.Module):
             # method like timm models
             self.orig_forward_features = None
 
+        self.prune_output = False
+        for dataset in datasets:
+            if 'Dummy' in dataset:
+                self.prune_output = True
+                classes = get_dataset_classes('Dummy_ID')
+                self.register_buffer('dummy_classes_indices', torch.LongTensor([class_to_idx[cls] for cls in classes]))
+
+
     def create_feature_extractor_sub_module(self):
         self.last_layer_name = get_graph_node_names(self.module)[0][-2]
         self.module = create_feature_extractor(self.module, [self.last_layer_name])
 
     def forward(self, x):
+        if self.prune_output:
+            return self.module.forward(x)[:, self.dummy_classes_indices]
+
         return self.module.forward(x)
 
     def forward_features(self, x):

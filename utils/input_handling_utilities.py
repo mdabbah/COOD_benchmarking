@@ -12,6 +12,8 @@ def get_model_name(model):
         return model['model_name']
     elif hasattr(model, 'model_name'):
         return model.__getattr__('model_name')
+    elif isinstance(model, torch.nn.Module):
+        return model.__class__.__name__
     return 'default_model_results_dir'
 
 
