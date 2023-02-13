@@ -232,7 +232,7 @@ def check_model_results_exist(model_name, data_name):
 def load_model_results_df(model_name, data_name):
     load_path = os.path.join(get_results_base_path(), model_name, data_name)
     if not os.path.exists(load_path):
-        print(f'could not find file {load_path}')
+        # print(f'could not find file {load_path}')
         return None
     data = pd.read_csv(load_path)
     return data
