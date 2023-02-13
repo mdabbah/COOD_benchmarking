@@ -13,7 +13,7 @@ import numpy as np
 from utils.kappa_dispatcher import get_confidence_function
 from utils.kappa_extractors import extract_softmax_signals_on_dataset, extract_MC_dropout_signals_on_dataset, \
     get_dataset_last_activations, extract_odin_confidences_on_dataset, get_dataset_embeddings, calc_OOD_metrics
-from utils.log_utils import Timer
+# from utils.log_utils import Timer
 from utils.models_wrapper import MySimpleWrapper
 from utils.severity_estimation_utils import calc_per_class_severity, get_severity_levels_groups_of_classes
 from utils.misc import create_model_and_transforms_OOD, log_ood_results, default_transform
@@ -55,8 +55,8 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
         function = function['confidence_metric_callable']
 
     function = get_confidence_function(function)
-    with Timer(f'time to extract confidence signals on {datasets_subsets} is:'):
-            results = function(model, all_data_loader, device=rank, confidence_args=confidence_args)
+    results = function(model, all_data_loader, device=rank, confidence_args=confidence_args)
+    # with Timer(f'time to extract confidence signals on {datasets_subsets} is:'):
 
     del model
     return results

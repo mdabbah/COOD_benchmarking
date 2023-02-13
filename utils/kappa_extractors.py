@@ -5,6 +5,9 @@ from sklearn.preprocessing import normalize
 import torch
 import torch.nn.functional as F
 from torch.distributions import Categorical
+import tqdm
+import sys
+from timeit import default_timer as timer
 
 from utils.log_utils import Timer, Logger
 from utils.uncertainty_metrics import gamma_correlation, ECE_calc, AURC_calc, gini
@@ -364,9 +367,6 @@ def extract_MC_dropout_signals_on_dataset(model, all_data_loader, confidence_arg
             del entropy_conf
             del res_dict
 
-            # if batch_idx == 3:
-            #     break
-
     return confidences
 
 def extract_mcd_entropy_on_dataset(model, all_data_loader, confidence_args=None, device='cpu'):
@@ -384,31 +384,34 @@ def extract_mcd_entropy_on_dataset(model, all_data_loader, confidence_args=None,
 
     confidences = {'confidences': [], 'correct': [], 'predictions': [], 'labels': []}
 
+    timer_start = timer()
+    num_batches = len(data_loader.batch_sampler)
     with torch.no_grad():
-        for x, y in all_data_loader:
-            x = x.float().to(f'cuda:{device}')
+        with tqdm.tqdm(desc="Evaluating with mc dropout as a confidence signal", total=num_batches,
+                       file=sys.stdout) as pbar:
+            for x, y in all_data_loader:
+                x = x.float().to(f'cuda:{device}')
 
-            res_dict = MC_Dropout_Pass(x, model, dropout_iterations=30, classification=True)
+                res_dict = MC_Dropout_Pass(x, model, dropout_iterations=30, classification=True)
 
-            predictions = to_cpu(res_dict['label_predictions'])
-            correct = y.numpy() == predictions
+                predictions = to_cpu(res_dict['label_predictions'])
+                correct = y.numpy() == predictions
 
-            probs = res_dict['mean_p']
-            softmax_conf, _ = torch.max(probs, dim=1)
-            confidences['confidences'].append(to_cpu(res_dict['entropy_conf']))
+                probs = res_dict['mean_p']
+                softmax_conf, _ = torch.max(probs, dim=1)
+                confidences['confidences'].append(to_cpu(res_dict['entropy_conf']))
 
-            confidences['correct'].append(correct)
-            confidences['predictions'].append(predictions)
-            confidences['labels'].append(y.numpy())
+                confidences['correct'].append(correct)
+                confidences['predictions'].append(predictions)
+                confidences['labels'].append(y.numpy())
 
+                del x
+                del probs
+                del softmax_conf
+                del res_dict
 
-            del x
-            del probs
-            del softmax_conf
-            del res_dict
-
-            # if batch_idx == 3:
-            #     break
+                pbar.set_description(f'Evaluating with mc dropout as a confidence signal. (Elapsed time:{timer() - timer_start:.3f} sec)')
+                pbar.update()
 
     return confidences
 
@@ -435,25 +438,32 @@ def extract_softmax_on_dataset(model, data_loader, confidence_args=None, device=
 
     confidences = {'confidences': [], 'correct': [], 'predictions': [], 'labels': []}
 
+    timer_start = timer()
+    num_batches = len(data_loader.batch_sampler)
     with torch.no_grad():
-        for x, y in data_loader:
-            x = x.float().to(f'cuda:{device}')
-            logits = model(x)
+        with tqdm.tqdm(desc="Evaluating with softmax as a confidence signal", total=num_batches,
+                       file=sys.stdout) as pbar:
+            for x, y in data_loader:
+                x = x.float().to(f'cuda:{device}')
+                logits = model(x)
 
-            probs = F.softmax(logits, dim=1)
-            softmax_conf, predictions = torch.max(probs, dim=1)
-            predictions = to_cpu(predictions)
-            correct = y.numpy() == predictions
+                probs = F.softmax(logits, dim=1)
+                softmax_conf, predictions = torch.max(probs, dim=1)
+                predictions = to_cpu(predictions)
+                correct = y.numpy() == predictions
 
-            confidences['confidences'].append(to_cpu(softmax_conf))
-            confidences['correct'].append(correct)
-            confidences['predictions'].append(predictions)
-            confidences['labels'].append(y.numpy())
+                confidences['confidences'].append(to_cpu(softmax_conf))
+                confidences['correct'].append(correct)
+                confidences['predictions'].append(predictions)
+                confidences['labels'].append(y.numpy())
 
-            # need to delete in explicit fashion to reduce OOM errors
-            del x
-            del probs
-            del softmax_conf
+                # need to delete in explicit fashion to reduce OOM errors
+                del x
+                del probs
+                del softmax_conf
+
+                pbar.set_description(f'Evaluating with softmax as a confidence signal. (Elapsed time:{timer() - timer_start:.3f} sec)')
+                pbar.update()
 
     return confidences
 
@@ -472,25 +482,32 @@ def extract_entropy_on_dataset(model, all_data_loader, confidence_args=None, dev
 
     confidences = {'confidences': [], 'correct': [], 'predictions': [], 'labels': []}
 
+    timer_start = timer()
+    num_batches = len(data_loader.batch_sampler)
     with torch.no_grad():
-        for x, y in all_data_loader:
-            x = x.float().to(f'cuda:{device}')
-            logits = model(x)
+        with tqdm.tqdm(desc="Evaluating with entropy as a confidence signal", total=num_batches,
+                       file=sys.stdout) as pbar:
+            for x, y in all_data_loader:
+                x = x.float().to(f'cuda:{device}')
+                logits = model(x)
 
-            probs = F.softmax(logits, dim=1)
-            softmax_conf, predictions = torch.max(probs, dim=1)
-            predictions = to_cpu(predictions)
-            correct = y.numpy() == predictions
-            entropy_conf = - Categorical(probs=probs).entropy()
+                probs = F.softmax(logits, dim=1)
+                softmax_conf, predictions = torch.max(probs, dim=1)
+                predictions = to_cpu(predictions)
+                correct = y.numpy() == predictions
+                entropy_conf = - Categorical(probs=probs).entropy()
 
-            confidences['confidences'].append(to_cpu(entropy_conf))
-            confidences['correct'].append(correct)
-            confidences['predictions'].append(predictions)
-            confidences['labels'].append(y.numpy())
+                confidences['confidences'].append(to_cpu(entropy_conf))
+                confidences['correct'].append(correct)
+                confidences['predictions'].append(predictions)
+                confidences['labels'].append(y.numpy())
 
-            del x
-            del probs
-            del entropy_conf
+                del x
+                del probs
+                del entropy_conf
+
+                pbar.set_description(f'Evaluating with entropy as a confidence signal. (Elapsed time:{timer() - timer_start:.3f} sec)')
+                pbar.update()
 
     return confidences
 
