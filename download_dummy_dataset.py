@@ -52,11 +52,13 @@ def download_dummy_dataset(download_dir=None):
     id_path = os.path.join(download_dir, 'dummy_id')
     ood_path = os.path.join(download_dir, 'dummy_ood')
 
-    # os.system(f'wget {dummy_dataset_url} {targz_path}')
-    urllib.request.urlretrieve(dummy_dataset_url, targz_path, show_progress)
+    if os.path.exists(id_path) and os.path.exists(ood_path):
+        print('Dummy dataset was already found in the given directory. Skipping its download.')
+        return
     print('Downloading dummy dataset')
-
-    os.system(f'tar -xzvf {targz_path}')
+    urllib.request.urlretrieve(dummy_dataset_url, targz_path, show_progress)
+    print('Extracting dataset into ' + download_dir)
+    os.system(f'tar -xzf {targz_path} -C {download_dir}')
 
     print('Dummy dataset downloaded successfully.')
     print('You can find the dataset at: ' + download_dir)
