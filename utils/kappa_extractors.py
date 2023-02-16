@@ -483,7 +483,7 @@ def extract_entropy_on_dataset(model, all_data_loader, confidence_args=None, dev
     confidences = {'confidences': [], 'correct': [], 'predictions': [], 'labels': []}
 
     timer_start = timer()
-    num_batches = len(data_loader.batch_sampler)
+    num_batches = len(all_data_loader.batch_sampler)
     with torch.no_grad():
         with tqdm.tqdm(desc="Evaluating with entropy as a confidence signal", total=num_batches,
                        file=sys.stdout) as pbar:
