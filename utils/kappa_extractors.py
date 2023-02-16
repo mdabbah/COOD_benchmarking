@@ -385,9 +385,9 @@ def extract_mcd_entropy_on_dataset(model, all_data_loader, confidence_args=None,
     confidences = {'confidences': [], 'correct': [], 'predictions': [], 'labels': []}
 
     timer_start = timer()
-    num_batches = len(data_loader.batch_sampler)
+    num_batches = len(all_data_loader.batch_sampler)
     with torch.no_grad():
-        with tqdm.tqdm(desc="Evaluating with mc dropout as a confidence signal", total=num_batches,
+        with tqdm.tqdm(desc="Evaluating with mc dropout as a confidence function", total=num_batches,
                        file=sys.stdout) as pbar:
             for x, y in all_data_loader:
                 x = x.float().to(f'cuda:{device}')
@@ -410,7 +410,7 @@ def extract_mcd_entropy_on_dataset(model, all_data_loader, confidence_args=None,
                 del softmax_conf
                 del res_dict
 
-                pbar.set_description(f'Evaluating with mc dropout as a confidence signal. (Elapsed time:{timer() - timer_start:.3f} sec)')
+                pbar.set_description(f'Evaluating with mc dropout as a confidence function. (Elapsed time:{timer() - timer_start:.3f} sec)')
                 pbar.update()
 
     return confidences
@@ -441,7 +441,7 @@ def extract_softmax_on_dataset(model, data_loader, confidence_args=None, device=
     timer_start = timer()
     num_batches = len(data_loader.batch_sampler)
     with torch.no_grad():
-        with tqdm.tqdm(desc="Evaluating with softmax as a confidence signal", total=num_batches,
+        with tqdm.tqdm(desc="Evaluating with softmax as a confidence function", total=num_batches,
                        file=sys.stdout) as pbar:
             for x, y in data_loader:
                 x = x.float().to(f'cuda:{device}')
@@ -462,7 +462,7 @@ def extract_softmax_on_dataset(model, data_loader, confidence_args=None, device=
                 del probs
                 del softmax_conf
 
-                pbar.set_description(f'Evaluating with softmax as a confidence signal. (Elapsed time:{timer() - timer_start:.3f} sec)')
+                pbar.set_description(f'Evaluating with softmax as a confidence function. (Elapsed time:{timer() - timer_start:.3f} sec)')
                 pbar.update()
 
     return confidences
@@ -485,7 +485,7 @@ def extract_entropy_on_dataset(model, all_data_loader, confidence_args=None, dev
     timer_start = timer()
     num_batches = len(all_data_loader.batch_sampler)
     with torch.no_grad():
-        with tqdm.tqdm(desc="Evaluating with entropy as a confidence signal", total=num_batches,
+        with tqdm.tqdm(desc="Evaluating with entropy as a confidence function", total=num_batches,
                        file=sys.stdout) as pbar:
             for x, y in all_data_loader:
                 x = x.float().to(f'cuda:{device}')
@@ -506,7 +506,7 @@ def extract_entropy_on_dataset(model, all_data_loader, confidence_args=None, dev
                 del probs
                 del entropy_conf
 
-                pbar.set_description(f'Evaluating with entropy as a confidence signal. (Elapsed time:{timer() - timer_start:.3f} sec)')
+                pbar.set_description(f'Evaluating with entropy as a confidence function. (Elapsed time:{timer() - timer_start:.3f} sec)')
                 pbar.update()
 
     return confidences
