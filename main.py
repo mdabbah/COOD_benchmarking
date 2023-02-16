@@ -32,6 +32,15 @@ if __name__ == '__main__':
         # 'images_base_folder': '/media/mohammed/Elements1/exported_datasets/dummy_id'
     }
 
+    from utils.confidence_functions import extract_softmax_on_dataset
+
+    custom_confidence_function = {'confidence_metric_name': 'softmax_response',
+                                  'confidence_metric_callable': extract_softmax_on_dataset}
+    results = benchmark_model_on_cood_with_severities(model='resnet18',
+                                                      confidence_metric=custom_confidence_function,
+                                                      cood_dataset_info=dummy_ood_dataset_info,
+                                                      id_dataset_info=dummy_id_dataset_info)
+    plotly.express.line(results, x='severity_level', y='ood-auroc', color='model_name-kappa')
 
     import torchvision.transforms as tvtf
     from torchvision.models import resnet50
@@ -45,7 +54,7 @@ if __name__ == '__main__':
     transforms = weights.transforms()
     model = mobilenet_v3_small(weights)
     # Note to mohammed: the problem persists even if instead of transforms you'd use resnet50_transform for example
-    # example_model_input = {'model_name': 'mobilenet_v3_small', 'model': model, 'transforms': transforms}
+    example_model_input = {'model_name': 'mobilenet_v3_small', 'model': model, 'transforms': transforms}
     results = benchmark_model_on_cood_with_severities(model=example_model_input,
                                                       confidence_metric='softmax',
                                                       cood_dataset_info=dummy_ood_dataset_info,
@@ -84,7 +93,7 @@ if __name__ == '__main__':
     #
     # example_model_input5 = [example_model_input, example_model_input2, example_model_input3]
     #
-    # from utils.kappa_extractors import extract_softmax_on_dataset
+    # from utils.confidence_functions import extract_softmax_on_dataset
     #
     # example_kappa_input = extract_softmax_on_dataset
     # example_kappa_input1 = {'confidence_metric_name': 'softmax',
