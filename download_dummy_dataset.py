@@ -1,8 +1,9 @@
 import os.path
 import urllib.request
 import progressbar
-dummy_dataset_url = 'https://github.com/mdabbah/COOD_benchmarking/archive/refs/tags/dummy_dataset.tar.gz'
-
+# dummy_dataset_url = 'https://github.com/mdabbah/COOD_benchmarking/archive/refs/tags/dummy_dataset.tar.gz'
+# dummy_dataset_url = 'https://github.com/mdabbah/COOD_benchmarking/releases/download/dummy_dataset/dummy_dataset.tar.gz'
+dummy_dataset_url = 'https://github.com/IdoGalil/ImageNet_training_baseline/releases/download/dataset/dummy_dataset.tar.gz'
 
 def get_save_dir_from_user():
     while True:
@@ -44,20 +45,22 @@ def download_file(url):
     return local_filename
 
 
-def download_dummy_dataset():
-    download_dir = get_save_dir_from_user()
+def download_dummy_dataset(download_dir=None):
+    if download_dir is None:
+        download_dir = get_save_dir_from_user()
     targz_path = os.path.join(download_dir, 'dummy_dataset.tar.gz')
     id_path = os.path.join(download_dir, 'dummy_id')
     ood_path = os.path.join(download_dir, 'dummy_ood')
 
     # os.system(f'wget {dummy_dataset_url} {targz_path}')
     urllib.request.urlretrieve(dummy_dataset_url, targz_path, show_progress)
+    print('Downloading dummy dataset')
 
     os.system(f'tar -xzvf {targz_path}')
 
-    print('dummy dataset downloaded successfully')
-    print('you can find the dataset at:')
-    print('id_dummy dataset path: ' + id_path)
-    print('you can find the dataset at:' + ood_path)
+    print('Dummy dataset downloaded successfully.')
+    print('You can find the dataset at: ' + download_dir)
+    print('In-distribution component of the dummy dataset path: ' + id_path)
+    print('Class-out-of-distribution component of the dummy dataset path:' + ood_path)
 
     # urllib.request.urlretrieve(dummy_dataset_url, filename=targz_path)
