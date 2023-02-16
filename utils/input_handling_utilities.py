@@ -54,9 +54,9 @@ def handle_parameters(cood_dataset_info, id_dataset_info):
 
 
 def handle_model_dict_input(model_dict: Dict):
-    model = model_dict.get('nn.module', None)
+    model = model_dict.get('model', None)
 
-    transforms = model_dict.get('nn.transforms', None)
+    transforms = model_dict.get('transforms', None)
     model_name = model_dict.get('model_name', None)
     if model is None and model_name is not None:
         model, t = create_model_and_transforms_OOD(model_name, pretrained=True)

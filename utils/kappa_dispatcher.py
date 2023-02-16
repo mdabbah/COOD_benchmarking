@@ -1,4 +1,4 @@
-from utils.kappa_extractors import extract_softmax_on_dataset, extract_entropy_on_dataset, extract_max_logit_on_dataset, \
+from utils.confidence_functions import extract_softmax_on_dataset, extract_entropy_on_dataset, extract_max_logit_on_dataset, \
     extract_mcd_entropy_on_dataset
 
 

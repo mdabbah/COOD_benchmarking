@@ -11,7 +11,7 @@ from utils.data_utils import load_model_results, create_dataset_metadata, save_m
 import numpy as np
 
 from utils.kappa_dispatcher import get_confidence_function
-from utils.kappa_extractors import extract_softmax_signals_on_dataset, extract_MC_dropout_signals_on_dataset, \
+from utils.confidence_functions import extract_softmax_signals_on_dataset, extract_MC_dropout_signals_on_dataset, \
     get_dataset_last_activations, extract_odin_confidences_on_dataset, get_dataset_embeddings, calc_OOD_metrics
 # from utils.log_utils import Timer
 from utils.models_wrapper import MySimpleWrapper

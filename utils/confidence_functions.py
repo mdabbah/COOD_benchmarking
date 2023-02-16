@@ -723,9 +723,6 @@ def get_dataset_last_activations(model, all_data_loader, confidence_args=None, d
             del x
             del probs
 
-            # if batch_idx == 3:
-            #     break
-
     return confidences
 
 
@@ -771,10 +768,6 @@ def get_dataset_embeddings(model, all_data_loader, confidence_args=None, device=
 
             del x
             del features
-
-            # if batch_idx == 3:
-            #     break
-
     return {k: np.concatenate(v) for k, v in dataset_fl.items()}
 
 
