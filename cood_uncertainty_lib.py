@@ -61,7 +61,6 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
 
 
 def aggregate_results_from_batches(results, axis=None):
-
     confidences = {k: np.concatenate(v, axis=axis) for k, v in results.items()}
     return confidences
 
@@ -220,4 +219,14 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
 
     model_results = model_results[model_results['severity_level'].isin(levels_to_benchmark)]
 
+    return model_results
+
+
+def get_paper_results(model_name: str, confidence_function: str) -> pd.DataFrame:
+    results_file_tag = f'{confidence_function}_n11'
+
+    if confidence_function == 'odin':
+        results_file_tag = f'odin_temperature-2_noise_mag-1e-05_n11'
+
+    model_results = load_model_results_df(model_name, f'{model_name}_{results_file_tag}')
     return model_results

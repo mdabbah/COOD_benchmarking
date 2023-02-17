@@ -229,8 +229,11 @@ def check_model_results_exist(model_name, data_name):
     return os.path.exists(save_path)
 
 
-def load_model_results_df(model_name, data_name):
-    load_path = os.path.join(get_results_base_path(), model_name, data_name)
+def load_model_results_df(model_name, data_name, base_path=None):
+    if base_path is None:
+        base_path = get_results_base_path()
+
+    load_path = os.path.join(base_path, model_name, data_name)
     if not os.path.exists(load_path):
         # print(f'could not find file {load_path}')
         return None
@@ -238,8 +241,10 @@ def load_model_results_df(model_name, data_name):
     return data
 
 
-def save_model_results_df(df: pd.DataFrame, model_name, data_name):
-    save_path = os.path.join(get_results_base_path(), model_name, data_name)
+def save_model_results_df(df: pd.DataFrame, model_name, data_name, base_path=None):
+    if base_path is None:
+        base_path = get_results_base_path()
+    save_path = os.path.join(base_path, model_name, data_name)
     df.to_csv(save_path, index=False)
 
 

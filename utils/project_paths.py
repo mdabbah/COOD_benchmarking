@@ -9,6 +9,12 @@ def get_results_base_path():
     )
 
 
+def get_paper_results_base_path():
+    return os.path.join(
+        project_dir, 'paper_results'
+    )
+
+
 def get_datasets_metadata_base_path():
     return os.path.join(
         project_dir, 'datasets_metadata'
