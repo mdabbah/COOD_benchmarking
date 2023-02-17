@@ -112,14 +112,12 @@ def get_timm_transforms(model):
 
 
 def log_ood_results(model_info, ood_results, results_file_tag, percentiles):
-
     model_results = pd.DataFrame(ood_results)
     model_results['model_name'] = model_info['model_name']
     model_results['kappa'] = model_info['kappa']
     model_results['percentile'] = percentiles
     model_results['severity_level'] = np.arange(len(percentiles))
     model_results['model_name-kappa'] = model_info['model_name'] + '-' + model_info['kappa']
-
 
     model_name = model_info['model_name']
 
@@ -234,12 +232,18 @@ default_transform = tvtf.Compose([tvtf.Resize(256), tvtf.CenterCrop(224), tvtf.T
                                   tvtf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
 
+def get_default_transform_with_open():
+    open_img_transforms = get_open_img_transforms()
+    transforms_ = tvtf.Compose([open_img_transforms, default_transform])
+    return transforms_
+
+
 def create_model_and_transforms_OOD(model_name, pretrained=True):
     model, transforms_ = create_model_and_transforms(model_name, pretrained)
     open_img_transforms = get_open_img_transforms()
-    transforms = tvtf.Compose([open_img_transforms, transforms_])
+    transforms_ = tvtf.Compose([open_img_transforms, transforms_])
 
-    return model, transforms
+    return model, transforms_
 
 
 def create_model_and_transforms(model_name, pretrained=True, models_dir='./timmResNets',

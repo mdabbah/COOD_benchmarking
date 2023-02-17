@@ -16,7 +16,8 @@ from utils.confidence_functions import extract_softmax_signals_on_dataset, extra
 # from utils.log_utils import Timer
 from utils.models_wrapper import MySimpleWrapper
 from utils.severity_estimation_utils import calc_per_class_severity, get_severity_levels_groups_of_classes
-from utils.misc import create_model_and_transforms_OOD, log_ood_results, default_transform
+from utils.misc import create_model_and_transforms_OOD, log_ood_results, default_transform, \
+    get_default_transform_with_open
 
 
 def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subsets, batch_size,
@@ -37,7 +38,7 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
     assert isinstance(model, torch.nn.Module)
 
     if transform is None:
-        transform = default_transform
+        transform = get_default_transform_with_open()
 
     # create the data loader.
     all_data_loader = create_data_loader(datasets,
@@ -56,7 +57,6 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
 
     function = get_confidence_function(function)
     results = function(model, all_data_loader, device=rank, confidence_args=confidence_args)
-    # with Timer(f'time to extract confidence signals on {datasets_subsets} is:'):
 
     del model
     return results
