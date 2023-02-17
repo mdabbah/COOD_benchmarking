@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.98259772,6.933106899261475,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+1,0.1,0.972351082,7.827026844024657,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+2,0.2,0.951870158,8.522092819213867,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+3,0.30000000000000004,0.9325261723999999,9.125399589538574,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+4,0.4,0.9142076036,9.537819862365724,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+5,0.5,0.8926306843999999,9.936832427978516,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+6,0.6000000000000001,0.8680022116,10.28736686706543,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+7,0.7000000000000001,0.8383123140000001,10.608804702758787,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+8,0.8,0.7985736076000001,10.963678359985352,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+9,0.9,0.7466165716,11.343672752380373,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit
+10,1.0,0.631398184,11.985118865966795,0.88226,0.7398428109202431,12.668636322021484,regnety_128gf_in1k_facebookSWAG,max_logit,regnety_128gf_in1k_facebookSWAG-max_logit

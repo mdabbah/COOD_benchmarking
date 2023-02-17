@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.8992520852,6.469962596893311,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+1,0.1,0.8634660164,6.902770519256593,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+2,0.2,0.8410250872,7.121105194091798,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+3,0.30000000000000004,0.8233628824,7.278758525848389,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+4,0.4,0.8026435792000001,7.450771808624268,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+5,0.5,0.7832966084,7.605249881744385,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+6,0.6000000000000001,0.7577532704000001,7.799232006072997,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+7,0.7000000000000001,0.7353223543999999,7.969104290008545,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+8,0.8,0.7062662812,8.17467212677002,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+9,0.9,0.6657559956,8.450546264648438,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit
+10,1.0,0.582885534,9.00721836090088,0.7227,0.7859159457879009,9.571192741394043,tf_mobilenetv3_large_minimal_100,max_logit,tf_mobilenetv3_large_minimal_100-max_logit

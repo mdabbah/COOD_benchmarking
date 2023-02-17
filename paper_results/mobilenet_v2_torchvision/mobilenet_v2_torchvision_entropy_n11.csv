@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9226128092,-3.499781847000122,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+1,0.09999999999999998,0.8899683052,-3.06577467918396,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+2,0.19999999999999996,0.8699008436,-2.7953150272369385,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+3,0.29999999999999993,0.849767266,-2.599935293197632,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+4,0.3999999999999999,0.8318776188,-2.432537317276001,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+5,0.5,0.8100007792,-2.2636172771453857,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+6,0.6,0.7869381304,-2.0991439819335938,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+7,0.7,0.7584034371999999,-1.9181941747665403,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+8,0.8,0.7272147252000001,-1.7321972846984863,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+9,0.9,0.6864629708,-1.5219776630401611,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy
+10,1.0,0.5973263276,-1.1539418697357178,0.7187,0.8502607746904083,-0.96396666765213,mobilenet_v2_torchvision,entropy,mobilenet_v2_torchvision-entropy

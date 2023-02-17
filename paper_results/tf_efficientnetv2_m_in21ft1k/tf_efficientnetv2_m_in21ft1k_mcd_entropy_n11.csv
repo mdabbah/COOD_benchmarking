@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9704372572,-5.073077201843262,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+1,0.1,0.9487672304000001,-4.537832736968994,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+2,0.2,0.922338872,-4.123724460601807,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+3,0.30000000000000004,0.8933927148,-3.774540424346924,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+4,0.4,0.8699542668000001,-3.537836790084839,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+5,0.5,0.8467950540000001,-3.351202726364136,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+6,0.6000000000000001,0.8241248756,-3.1491012573242188,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+7,0.7000000000000001,0.7939899992,-2.9589319229125977,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+8,0.8,0.7615287232,-2.7567195892333984,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+9,0.9,0.7162316024,-2.5203118324279785,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy
+10,1.0,0.6140088012,-2.11596941947937,0.84752,0.7643894835887822,-1.7463051080703735,tf_efficientnetv2_m_in21ft1k,mcd_entropy,tf_efficientnetv2_m_in21ft1k-mcd_entropy

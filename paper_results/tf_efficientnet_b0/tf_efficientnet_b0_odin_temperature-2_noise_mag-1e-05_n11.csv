@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9223753528,0.02457514591515064,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+1,0.1,0.8931540931999999,0.029562551528215412,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+2,0.2,0.8730437332,0.032724376767873764,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+3,0.30000000000000004,0.854701872,0.035529669374227524,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+4,0.4,0.8365370604000001,0.038197528570890434,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+5,0.5,0.8192008064,0.04074091464281082,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+6,0.6000000000000001,0.7984879376,0.0438661128282547,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+7,0.7000000000000001,0.7739939748000001,0.047408804297447205,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+8,0.8,0.7444849328,0.05195144563913345,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+9,0.9,0.7022333688,0.05846988782286644,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05
+10,1.0,0.6138455272,0.07398450374603271,0.76852,0.8165568129932185,0.0954974964261055,tf_efficientnet_b0,odin_temperature-2_noise_mag-1e-05,tf_efficientnet_b0-odin_temperature-2_noise_mag-1e-05

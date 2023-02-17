@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9311680184000001,0.0606800839304924,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+1,0.1,0.9018002684,0.07962145656347275,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+2,0.2,0.8823867972,0.09283877909183502,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+3,0.30000000000000004,0.8599936751999999,0.1084178388118744,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+4,0.4,0.8417997392000001,0.12103374302387238,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+5,0.5,0.8189199131999999,0.13816821575164795,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+6,0.6000000000000001,0.7919608231999999,0.15873439610004425,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+7,0.7000000000000001,0.7576362324,0.18615736067295074,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+8,0.8,0.7232247195999999,0.21560245752334595,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+9,0.9,0.6746409968000001,0.25958889722824097,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05
+10,1.0,0.57342834,0.3606182336807251,0.7187,0.8308318605239315,0.4468346238136292,mobilenet_v2_torchvision,odin_temperature-2_noise_mag-1e-05,mobilenet_v2_torchvision-odin_temperature-2_noise_mag-1e-05

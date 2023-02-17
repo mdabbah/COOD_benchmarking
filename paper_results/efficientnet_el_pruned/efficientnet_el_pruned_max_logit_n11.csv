@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.895470476,6.906380653381348,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+1,0.1,0.8666512092,7.165114402770996,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+2,0.2,0.8478088420000001,7.315909385681152,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+3,0.30000000000000004,0.8307110731999999,7.435467720031737,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+4,0.4,0.8140109571999999,7.550455093383789,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+5,0.5,0.7946879179999999,7.671743869781494,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+6,0.6000000000000001,0.775134732,7.7987632751464835,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+7,0.7000000000000001,0.749999636,7.945303916931152,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+8,0.8,0.7240605452,8.092966079711914,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+9,0.9,0.6877075364,8.288347244262695,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit
+10,1.0,0.6010172952,8.704480171203612,0.80286,0.7672476900963199,9.151288986206056,efficientnet_el_pruned,max_logit,efficientnet_el_pruned-max_logit

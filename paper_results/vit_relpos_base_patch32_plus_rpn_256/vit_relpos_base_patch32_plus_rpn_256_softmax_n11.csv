@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.8736182887999999,0.324595183134079,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+1,0.1,0.8521050892,0.35866832733154297,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+2,0.2,0.838556234,0.3790503144264221,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+3,0.30000000000000004,0.8244404264,0.397977739572525,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+4,0.4,0.8077057931999999,0.4207152426242829,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+5,0.5,0.7898773240000001,0.4434994161128998,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+6,0.6000000000000001,0.7670771987999999,0.4724133908748626,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+7,0.7000000000000001,0.7448204232,0.4998027682304382,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+8,0.8,0.7156332944,0.5338732600212097,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+9,0.9,0.6793414631999999,0.5717303156852722,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax
+10,1.0,0.5914274424,0.6527796387672424,0.79492,0.83555960199029,0.7142030596733093,vit_relpos_base_patch32_plus_rpn_256,softmax,vit_relpos_base_patch32_plus_rpn_256-softmax

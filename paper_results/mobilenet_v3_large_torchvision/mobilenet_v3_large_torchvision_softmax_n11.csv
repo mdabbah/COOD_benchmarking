@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.8983074944,0.3424612879753113,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+1,0.1,0.8655332236,0.4116145968437195,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+2,0.2,0.8477904956,0.44606977701187134,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+3,0.30000000000000004,0.8305256352,0.4748011231422424,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+4,0.4,0.8143708472,0.5021646618843079,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+5,0.5,0.7976117152,0.5277682542800903,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+6,0.6000000000000001,0.7816802972,0.5511305332183838,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+7,0.7000000000000001,0.7613093552,0.5797616243362427,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+8,0.8,0.7354420236,0.6112837791442871,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+9,0.9,0.702770094,0.6521507501602173,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax
+10,1.0,0.6182031924,0.7338020205497742,0.74044,0.8687882821340859,0.8070554137229919,mobilenet_v3_large_torchvision,softmax,mobilenet_v3_large_torchvision-softmax

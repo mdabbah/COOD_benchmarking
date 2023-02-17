@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9256362036,0.053529061377048485,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+1,0.1,0.8953161087999999,0.07032842189073563,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+2,0.2,0.8720004992,0.08364127576351166,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+3,0.30000000000000004,0.8512570815999999,0.0959346741437912,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+4,0.4,0.8321066956000001,0.10812314599752426,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+5,0.5,0.8082842495999999,0.1238451823592186,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+6,0.6000000000000001,0.7797599608,0.14385123550891876,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+7,0.7000000000000001,0.7446023468,0.16954392194747925,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+8,0.8,0.7080540240000001,0.19863446056842804,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+9,0.9,0.6605034924000001,0.23969271779060364,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05
+10,1.0,0.557987812,0.3387914597988129,0.6975600000000001,0.8235802748536534,0.41173502802848816,resnet18_torchvision,odin_temperature-2_noise_mag-1e-05,resnet18_torchvision-odin_temperature-2_noise_mag-1e-05

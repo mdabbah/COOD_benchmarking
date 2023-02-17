@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9355537064,9.112168312072754,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+1,0.1,0.9170361988,9.474686622619627,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+2,0.2,0.9041296304,9.677980422973633,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+3,0.30000000000000004,0.8917633344,9.86302661895752,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+4,0.4,0.8776723608,10.050755500793457,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+5,0.5,0.855225514,10.29845142364502,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+6,0.6000000000000001,0.83067591,10.572174072265623,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+7,0.7000000000000001,0.7998644792,10.876129150390623,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+8,0.8,0.7660889684000001,11.180818557739258,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+9,0.9,0.7186060736,11.551127433776855,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit
+10,1.0,0.5947380264,12.285807609558105,0.8121,0.8208656077886365,12.67434787750244,deit_small_distilled_patch16_224,max_logit,deit_small_distilled_patch16_224-max_logit

@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9763528695999999,0.042074088007211685,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+1,0.1,0.9594969336,0.05727483332157135,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+2,0.2,0.9430962984000001,0.07077674567699432,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+3,0.30000000000000004,0.9295123944,0.08141405135393143,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+4,0.4,0.9145577824,0.09259436279535294,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+5,0.5,0.8953969448000001,0.10662006586790083,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+6,0.6000000000000001,0.8744792972,0.12160532921552658,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+7,0.7000000000000001,0.8467559992,0.14129772782325745,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+8,0.8,0.8127746708,0.16520436108112335,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+9,0.9,0.765491912,0.19850605726242065,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05
+10,1.0,0.6431810992,0.2862960398197174,0.8048,0.8383739265228303,0.3978106677532196,vit_small_patch32_384,odin_temperature-2_noise_mag-1e-05,vit_small_patch32_384-odin_temperature-2_noise_mag-1e-05

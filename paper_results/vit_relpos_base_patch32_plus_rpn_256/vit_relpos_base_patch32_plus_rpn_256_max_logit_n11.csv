@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.8281719644,7.08292818069458,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+1,0.1,0.800973108,7.270484447479247,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+2,0.2,0.7816867695999999,7.3827457427978525,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+3,0.30000000000000004,0.7661735615999999,7.469759941101074,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+4,0.4,0.7547156956000001,7.5367560386657715,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+5,0.5,0.7366550484000001,7.621998786926269,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+6,0.6000000000000001,0.7121714792,7.743891716003418,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+7,0.7000000000000001,0.6912557408,7.852645397186278,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+8,0.8,0.6651834192,7.971489906311035,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+9,0.9,0.6304027608,8.120509147644043,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit
+10,1.0,0.5610808952,8.37620735168457,0.79492,0.7500164664696304,8.55230712890625,vit_relpos_base_patch32_plus_rpn_256,max_logit,vit_relpos_base_patch32_plus_rpn_256-max_logit

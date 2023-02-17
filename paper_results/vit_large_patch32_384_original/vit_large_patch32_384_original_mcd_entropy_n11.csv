@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.994753418,-6.190585136413574,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+1,0.1,0.9884809040000001,-5.739137649536133,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+2,0.2,0.9813382792,-5.3044514656066895,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+3,0.30000000000000004,0.972308792,-4.8518104553222665,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+4,0.4,0.9611709796,-4.402402400970459,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+5,0.5,0.9478236084,-4.0017967224121085,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+6,0.6000000000000001,0.9341236748,-3.6262497901916495,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+7,0.7000000000000001,0.910691356,-3.129197120666504,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+8,0.8,0.8786057928000001,-2.5884459018707275,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+9,0.9,0.833158818,-2.037315368652344,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy
+10,1.0,0.7120639548000001,-1.1844751834869385,0.82316,0.8607223008801331,-0.6540610790252686,vit_large_patch32_384_original,mcd_entropy,vit_large_patch32_384_original-mcd_entropy

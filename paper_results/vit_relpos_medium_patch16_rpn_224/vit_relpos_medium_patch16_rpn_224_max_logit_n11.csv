@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.855714634,7.227307319641112,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+1,0.1,0.8143595020000001,7.5111751556396475,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+2,0.2,0.79057305,7.63956880569458,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+3,0.30000000000000004,0.7707240744,7.743898868560791,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+4,0.4,0.7528136459999999,7.823983192443848,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+5,0.5,0.7356453992,7.909586429595947,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+6,0.6000000000000001,0.7181827876000001,7.98340368270874,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+7,0.7000000000000001,0.700423984,8.062051773071289,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+8,0.8,0.6776230568000001,8.147931098937987,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+9,0.9,0.6418079328,8.266819953918457,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit
+10,1.0,0.5695132728,8.47536563873291,0.82314,0.7513010770497182,8.660293579101562,vit_relpos_medium_patch16_rpn_224,max_logit,vit_relpos_medium_patch16_rpn_224-max_logit

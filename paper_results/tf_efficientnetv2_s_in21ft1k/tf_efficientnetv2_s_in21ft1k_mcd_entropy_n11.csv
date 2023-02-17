@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9551519956,-4.744821071624756,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+1,0.1,0.924537304,-4.1774935722351065,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+2,0.2,0.8944600856,-3.79391884803772,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+3,0.30000000000000004,0.8686257552,-3.5040478706359863,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+4,0.4,0.8433956804,-3.31583833694458,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+5,0.5,0.8225462732,-3.1458280086517334,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+6,0.6000000000000001,0.7983221048,-2.99060320854187,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+7,0.7000000000000001,0.7736063976,-2.8265552520751958,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+8,0.8,0.7440524548,-2.6707770824432373,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+9,0.9,0.7025394968,-2.4763097763061523,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy
+10,1.0,0.613239092,-2.133395910263061,0.83304,0.7639725791049125,-1.7752841711044312,tf_efficientnetv2_s_in21ft1k,mcd_entropy,tf_efficientnetv2_s_in21ft1k-mcd_entropy

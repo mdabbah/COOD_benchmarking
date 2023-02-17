@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.8309310084,9.162420272827148,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+1,0.1,0.8029663068,9.497746467590332,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+2,0.2,0.7817493659999999,9.750527381896973,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+3,0.30000000000000004,0.7617714459999999,9.983926773071287,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+4,0.4,0.7430028604000001,10.200305938720703,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+5,0.5,0.719398654,10.473881721496582,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+6,0.6000000000000001,0.6933541059999999,10.780054092407227,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+7,0.7000000000000001,0.6622533443999999,11.144105911254883,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+8,0.8,0.6289323356000001,11.533462524414062,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+9,0.9,0.5838102288,12.090132713317873,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit
+10,1.0,0.49000510280000004,13.386752128601074,0.60544,0.798417893030736,13.445364952087402,shufflenet_v2_x0_5_torchvision,max_logit,shufflenet_v2_x0_5_torchvision-max_logit

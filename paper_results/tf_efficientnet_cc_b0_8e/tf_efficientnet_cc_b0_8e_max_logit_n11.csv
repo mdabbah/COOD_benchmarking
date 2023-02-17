@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.881147894,6.532269477844237,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+1,0.1,0.8334415436,6.983353614807129,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+2,0.2,0.8083816228,7.153539180755615,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+3,0.30000000000000004,0.7859065836,7.302791118621826,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+4,0.4,0.7639137476000001,7.429625511169434,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+5,0.5,0.7384903584,7.562047004699707,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+6,0.6000000000000001,0.7187739248,7.663492679595947,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+7,0.7000000000000001,0.6945450588,7.785579204559326,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+8,0.8,0.6654689147999999,7.908334255218506,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+9,0.9,0.6341344136,8.041454315185549,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit
+10,1.0,0.5626985076,8.300275802612305,0.7791,0.7653075576344633,8.50855541229248,tf_efficientnet_cc_b0_8e,max_logit,tf_efficientnet_cc_b0_8e-max_logit

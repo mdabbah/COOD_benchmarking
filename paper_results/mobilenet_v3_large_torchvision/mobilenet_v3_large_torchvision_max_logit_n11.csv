@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9423110140000001,8.13218879699707,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+1,0.1,0.9196535664,8.770983695983888,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+2,0.2,0.9010883648000001,9.26601791381836,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+3,0.30000000000000004,0.8808134459999999,9.729732513427734,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+4,0.4,0.8610620515999999,10.16970920562744,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+5,0.5,0.8362189004,10.660090446472168,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+6,0.6000000000000001,0.8070398464,11.2014741897583,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+7,0.7000000000000001,0.7684203652,11.891485214233398,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+8,0.8,0.7286031688,12.57662868499756,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+9,0.9,0.6707694564,13.516340255737305,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit
+10,1.0,0.5376186484000001,15.70374584197998,0.74044,0.7957691419110056,16.498104095458984,mobilenet_v3_large_torchvision,max_logit,mobilenet_v3_large_torchvision-max_logit

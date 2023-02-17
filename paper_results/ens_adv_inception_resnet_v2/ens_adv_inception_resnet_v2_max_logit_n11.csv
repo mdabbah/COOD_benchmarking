@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.8080597292,7.952096939086914,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+1,0.1,0.7652251576000001,8.260293960571289,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+2,0.2,0.7417153000000001,8.400400161743164,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+3,0.30000000000000004,0.730646184,8.481557846069336,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+4,0.4,0.7105495368000001,8.585847854614258,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+5,0.5,0.6972975172,8.658649444580076,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+6,0.6000000000000001,0.6812044956000001,8.740045547485353,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+7,0.7000000000000001,0.6682032447999999,8.799826622009277,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+8,0.8,0.6453591376,8.892613410949707,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+9,0.9,0.6162427564,9.003058433532715,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit
+10,1.0,0.5354254948,9.32650089263916,0.79984,0.7163092190780282,9.426817893981934,ens_adv_inception_resnet_v2,max_logit,ens_adv_inception_resnet_v2-max_logit

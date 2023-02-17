@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.867777432,-3.9533786773681636,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+1,0.09999999999999998,0.842030464,-3.7281434535980233,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+2,0.19999999999999996,0.8280392832,-3.6171023845672607,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+3,0.29999999999999993,0.81215381,-3.5039310455322266,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+4,0.3999999999999999,0.7960734452,-3.3932368755340576,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+5,0.5,0.7789730055999999,-3.2745449542999268,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+6,0.6,0.7520478856,-3.1144068241119385,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+7,0.7,0.7253965592,-2.9434902667999268,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+8,0.8,0.6977138112000001,-2.7694907188415527,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+9,0.9,0.6592391879999999,-2.5591809749603267,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy
+10,1.0,0.5773524003999999,-2.181979894638061,0.79492,0.7882018905676166,-1.9577392339706419,vit_relpos_base_patch32_plus_rpn_256,entropy,vit_relpos_base_patch32_plus_rpn_256-entropy

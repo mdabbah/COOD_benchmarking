@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.875719482,6.206238746643066,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+1,0.1,0.8334014956,6.640629768371582,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+2,0.2,0.8013427012000001,6.910908222198486,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+3,0.30000000000000004,0.7777816272,7.1034836769104,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+4,0.4,0.7559199204000001,7.276020526885986,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+5,0.5,0.7320951323999999,7.455432891845702,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+6,0.6000000000000001,0.7086681807999999,7.629982948303223,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+7,0.7000000000000001,0.68267943,7.820915699005128,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+8,0.8,0.6525936488,8.038067817687987,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+9,0.9,0.6130758204,8.320315361022951,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit
+10,1.0,0.52955742,8.938353538513184,0.62884,0.7882291699850007,9.189335823059082,tf_mobilenetv3_small_minimal_100,max_logit,tf_mobilenetv3_small_minimal_100-max_logit

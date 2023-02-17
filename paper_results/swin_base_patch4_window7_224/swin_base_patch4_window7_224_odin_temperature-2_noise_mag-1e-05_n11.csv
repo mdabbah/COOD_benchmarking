@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.9773382968000001,0.017041653394699097,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+1,0.1,0.9576447187999999,0.02359230630099773,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+2,0.2,0.9390309812000001,0.028468776494264606,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+3,0.30000000000000004,0.9166671536,0.03340965509414673,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+4,0.4,0.8920973016,0.03822075575590134,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+5,0.5,0.8720916688,0.04178769513964653,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+6,0.6000000000000001,0.8533667044,0.0448332317173481,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+7,0.7000000000000001,0.8276742672,0.04853449761867523,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+8,0.8,0.7968495672,0.05278192833065986,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+9,0.9,0.7544521772,0.0579465739428997,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05
+10,1.0,0.6578138036,0.06773333251476288,0.85278,0.7940148180394072,0.08160904794931413,swin_base_patch4_window7_224,odin_temperature-2_noise_mag-1e-05,swin_base_patch4_window7_224-odin_temperature-2_noise_mag-1e-05

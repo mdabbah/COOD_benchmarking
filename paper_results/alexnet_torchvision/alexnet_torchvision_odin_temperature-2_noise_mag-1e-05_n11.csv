@@ -1,0 +1,12 @@
+severity level,percentile,ood-auroc,ood_avg_conf,id-acc,id-auroc,id_avg_conf,model name,confidence function,model name - confidence function
+0,0.0,0.8697592204000001,0.046831786632537835,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+1,0.1,0.8305696704000001,0.05895739421248436,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+2,0.2,0.7980307736,0.06956444680690765,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+3,0.30000000000000004,0.7681683159999999,0.08009112626314162,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+4,0.4,0.7416994588,0.09121424704790117,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+5,0.5,0.7182743164000001,0.10160008072853087,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+6,0.6000000000000001,0.688916904,0.11529754847288133,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+7,0.7000000000000001,0.652245426,0.13445845246315002,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+8,0.8,0.6188188111999999,0.15491634607315066,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+9,0.9,0.5743376936,0.1870821863412857,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
+10,1.0,0.475896198,0.2755456566810608,0.5654600000000001,0.8219767288725965,0.2876884043216705,alexnet_torchvision,odin_temperature-2_noise_mag-1e-05,alexnet_torchvision-odin_temperature-2_noise_mag-1e-05
