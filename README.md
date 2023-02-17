@@ -1,6 +1,6 @@
 # A framework for Benchmarking Class-out-of-distribution Detection
 <p align="center">
-  <img src="https://github.com/IdoGalil/benchmarking-uncertainty-estimation-performance/blob/main/Risk-Coverage_curve_comparison.png">
+  <img src="https://github.com/mdabbah/COOD_benchmarking/blob/main/degredation_graph_paper.pdf">
 </p>
 This repository is the official implementation of "A framework for Benchmarking Class-out-of-distribution Detection and its Application to ImageNet", accepted to ICLR 2023 as a notable-top-25%, by Ido Galil, Mohammed Dabbah and Ran El-Yaniv:
 https://openreview.net/pdf?id=Iuubb9W6Jtk
