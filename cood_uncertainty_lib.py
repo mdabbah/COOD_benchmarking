@@ -170,7 +170,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
 
     model_results = load_model_results_df(model_name, f'{model_name}_{results_file_tag}.csv')
     if model_results is not None and not force_run:
-        return model_results[model_results.severity_levels.isin(levels_to_benchmark)]
+        return model_results[model_results['severity level'].isin(levels_to_benchmark)]
 
     (cood_dataset_info, id_dataset_info) = handle_parameters(cood_dataset_info, id_dataset_info)
     cood_dataset_name = get_dataset_name(cood_dataset_info)  # ImageNet_20K
@@ -225,7 +225,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
 
     model_results = log_ood_results(model_info, ood_results, results_file_tag, percentiles)
 
-    model_results = model_results[model_results['severity_level'].isin(levels_to_benchmark)]
+    model_results = model_results[model_results['severity level'].isin(levels_to_benchmark)]
 
     return model_results
 

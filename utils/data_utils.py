@@ -58,7 +58,9 @@ def create_dataset_metadata(dataset_info_dict, is_id_dataset=False):
     image_files = []
     for extension in image_extensions:
         image_files.extend(glob.glob(f'{dataset_base_folder}/*/*{extension}', recursive=True))
-
+    if len(image_files) == 0:
+        raise ValueError(f'we scanned the given path {dataset_base_folder} but couldn\'t find any images.'
+                         f'are you sure you sent the correct path?')
     image_files = np.array(image_files)
     class_names = [os.path.basename(os.path.dirname(f)) for f in image_files]
     class_names, labels = np.unique(class_names, return_inverse=True)

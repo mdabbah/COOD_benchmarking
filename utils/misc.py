@@ -113,11 +113,11 @@ def get_timm_transforms(model):
 
 def log_ood_results(model_info, ood_results, results_file_tag, percentiles):
     model_results = pd.DataFrame(ood_results)
-    model_results['model_name'] = model_info['model_name']
-    model_results['kappa'] = model_info['kappa']
+    model_results['model name'] = model_info['model_name']
+    model_results['confidence function'] = model_info['kappa']
     model_results['percentile'] = percentiles
-    model_results['severity_level'] = np.arange(len(percentiles))
-    model_results['model_name-kappa'] = model_info['model_name'] + '-' + model_info['kappa']
+    model_results['severity level'] = np.arange(len(percentiles))
+    model_results['model name - confidence function'] = model_info['model_name'] + '-' + model_info['kappa']
 
     model_name = model_info['model_name']
 
@@ -306,7 +306,7 @@ def create_model_and_transforms(model_name, pretrained=True, models_dir='./timmR
         print(f'for {model_name} we gave dropout rate of 0.1')
     else:
         architecture = model_name
-        model = timm.create_model(architecture, pretrained=pretrained).eval().cuda()
+        model = timm.create_model(architecture, pretrained=pretrained).eval()
         # Creating the model specific data transformation
         config = resolve_data_config({}, model=model)
         transform = create_transform(**config)
