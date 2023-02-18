@@ -1,4 +1,4 @@
-import plotly
+import plotly.express
 
 from cood_uncertainty_lib import benchmark_model_on_cood_with_severities, get_paper_results
 
@@ -42,14 +42,19 @@ if __name__ == '__main__':
     from download_dummy_dataset import download_dummy_dataset
 
     from utils.confidence_functions import extract_softmax_on_dataset
+    # results = benchmark_model_on_cood_with_severities(model='resnet18',
+    #                                                   confidence_function=extract_softmax_on_dataset,
+    #                                                   cood_dataset_info=dummy_ood_dataset_info,
+    #                                                   id_dataset_info=dummy_id_dataset_info)
+    # plotly.express.line(results, x='severity level', y='ood-auroc', color='model name - confidence function')
 
     custom_confidence_function = {'confidence_metric_name': 'softmax_response',
                                   'confidence_metric_callable': extract_softmax_on_dataset}
-    results = benchmark_model_on_cood_with_severities(model='resnet18',
-                                                      confidence_function=custom_confidence_function,
-                                                      cood_dataset_info=dummy_ood_dataset_info,
-                                                      id_dataset_info=dummy_id_dataset_info)
-    plotly.express.line(results, x='severity_level', y='ood-auroc', color='model_name-kappa')
+    # results = benchmark_model_on_cood_with_severities(model='resnet18',
+    #                                                   confidence_function=custom_confidence_function,
+    #                                                   cood_dataset_info=dummy_ood_dataset_info,
+    #                                                   id_dataset_info=dummy_id_dataset_info)
+    # plotly.express.line(results, x='severity level', y='ood-auroc', color='model name - confidence function')
 
     import torchvision.transforms as tvtf
     from torchvision.models import resnet50
@@ -57,6 +62,11 @@ if __name__ == '__main__':
                                        tvtf.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
     example_model_input = {'model_name': 'resnet50', 'model': resnet50(),
                            'transforms': resnet50_transform}  # recommended
+
+    results = benchmark_model_on_cood_with_severities(model=example_model_input,
+                                                      confidence_function=custom_confidence_function,
+                                                      cood_dataset_info=dummy_ood_dataset_info,
+                                                      id_dataset_info=dummy_id_dataset_info)
 
     from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights
     weights = MobileNet_V3_Small_Weights.DEFAULT

@@ -11,7 +11,6 @@ import utils.old_timm_lib
 from utils.old_timm_lib.timm.data import resolve_data_config as old_resolve_data_config
 from utils.old_timm_lib.timm.data import create_transform as old_create_transform
 # from timm.data import resolve_data_config, create_transform
-from torchvision import transforms
 import clip
 # To use clip:
 # pip install ftfy regex tqdm
@@ -233,15 +232,19 @@ default_transform = tvtf.Compose([tvtf.Resize(256), tvtf.CenterCrop(224), tvtf.T
 
 
 def get_default_transform_with_open():
-    open_img_transforms = get_open_img_transforms()
-    transforms_ = tvtf.Compose([open_img_transforms, default_transform])
+    transforms_ = add_open_transforms(default_transform)
     return transforms_
+
+
+def add_open_transforms(transforms):
+    open_img_transforms = get_open_img_transforms()
+    transforms = tvtf.Compose([open_img_transforms, transforms])
+    return transforms
 
 
 def create_model_and_transforms_OOD(model_name, pretrained=True):
     model, transforms_ = create_model_and_transforms(model_name, pretrained)
-    open_img_transforms = get_open_img_transforms()
-    transforms_ = tvtf.Compose([open_img_transforms, transforms_])
+    transforms_ = add_open_transforms(transforms_)
 
     return model, transforms_
 

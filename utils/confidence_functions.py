@@ -41,77 +41,6 @@ def diversity_severity_alg(severity_proxy, num_attack_groups):
     return chosen_attack_groups_ids, chosen_severities, percentiles
 
 
-def get_attackers(targeted_encodings, all_attackers_encodings, num_attack_groups, distance_criterion, attack_group_size,
-                  choice_alg):
-    """
-    :param targeted_encodings: matrix C-by-e
-    row i is the encoding vector (of size e) of class i.
-    :param all_attackers_encodings: matrix A-by-e
-    row i is the encoding vector (of size e) of class i.
-    :param num_attack_groups: number of groups to be returned x.
-    :param distance_criterion: one of ( 'inner_product', 'cosine' or  'l2' ).
-    :return: returns x attack groups each group is of the same size of the targeted classes
-    each group is of different severity.
-    the groups returned are sorted by severity (first member is most severe).
-    each row is an attack group.
-    """
-
-    assert num_attack_groups < all_attackers_encodings.shape[0]
-    if distance_criterion == 'inner_product':
-        dists = np.matmul(targeted_encodings, all_attackers_encodings.T)
-        # the bigger the value the more dangerous the attacker.
-        # so to be consistent with other distance metrics we'll negate it.
-        # this is still not a proper distance.
-        dists = -dists
-    elif distance_criterion == 'cosine':
-        dists = -np.matmul(normalize(targeted_encodings, norm='l2', axis=1),
-                           normalize(all_attackers_encodings.T, norm='l2', axis=0))
-
-    elif distance_criterion == 'l2':
-        mat_a, mat_b = targeted_encodings, all_attackers_encodings
-        inner_products = np.matmul(mat_a, mat_b.T)
-        mat_a_inner_product = np.matmul(mat_a, mat_a.T)
-        mat_b_inner_product = np.matmul(mat_b, mat_b.T)
-
-        dists = np.diag(mat_a_inner_product)[:, np.newaxis] \
-                + np.diag(mat_b_inner_product)[np.newaxis, :] - 2 * inner_products
-    else:
-        raise ValueError("The distance criterion sent is not supported.")
-
-    # now we have a matrix dists s.t. cell dists[i,j] says how "far" is target class i from
-    # attacker class j. the more closer (or smaller the value) the attacker the more dangerous it is.
-
-    # attackers_sorted = np.argsort(dists, axis=1)  # each column represents a different attack group.
-    # dists_sorted = np.sort(dists, axis=1)  # we cannot guarantee that each attack group is of size C.
-    # one attacker can be the "best" attacker to multiple classes.
-
-    # average distance is a severity proxy
-    severity_proxy = np.mean(dists, axis=0)
-    attackers_ids = np.argsort(severity_proxy)
-    severity_proxy = np.sort(severity_proxy)
-
-    groups_severity = moving_average(severity_proxy, attack_group_size)
-
-    if choice_alg == 'diversity':
-        chosen_attack_groups_ids, attack_severities, percentiles = diversity_severity_alg(groups_severity,
-                                                                                          num_attack_groups)
-    elif choice_alg == 'fixed_percentiles':
-        chosen_attack_groups_ids, attack_severities, percentiles = percentile_severity_alg(groups_severity,
-                                                                                           num_attack_groups)
-    else:
-        raise ValueError('given choice alg is not supported')
-
-    attack_groups = np.array([attackers_ids[idx: idx + attack_group_size] for idx in chosen_attack_groups_ids])
-    return {'attack_groups': attack_groups, 'attack_severities': attack_severities, 'percentiles': percentiles}
-
-
-def max_softmax_proxy(softmax_scores, labels):
-    softmax_proxy = []
-    for y in np.unique(labels):
-        avg_softmax = np.mean(softmax_scores[labels == y])
-        softmax_proxy.append(avg_softmax)
-
-    return np.array(softmax_proxy)
 
 
 def get_per_class_centroids(model, data_loader, num_classes, device, return_counts=False):
@@ -191,33 +120,8 @@ def get_per_class_centroids(model, data_loader, num_classes, device, return_coun
     return to_cpu(centroids)
 
 
-def get_attackers_with_proxy(severity_proxy, num_attack_groups, attack_group_size, choice_alg):
-    attackers_ids = np.argsort(severity_proxy)
-    severity_proxy = np.sort(severity_proxy)
-
-    groups_severity = moving_average(severity_proxy, attack_group_size)
-
-    if choice_alg == 'diversity':
-        chosen_attack_groups_ids, attack_severities, percentiles = diversity_severity_alg(groups_severity,
-                                                                                          num_attack_groups)
-    elif choice_alg == 'fixed_percentiles':
-        chosen_attack_groups_ids, attack_severities, percentiles = percentile_severity_alg(groups_severity,
-                                                                                           num_attack_groups)
-    else:
-        raise ValueError('given choice alg is not supported')
-
-    attack_groups = np.array([attackers_ids[idx: idx + attack_group_size] for idx in chosen_attack_groups_ids])
-
-    return {'attack_groups': attack_groups, 'attack_severities': attack_severities, 'percentiles': percentiles}
 
 
-def percentile_severity_alg(groups_severity, num_groups):
-    percentiles = np.linspace(0, 1, num_groups)
-    chosen_attack_groups_ids = [int(q * len(groups_severity)) for q in percentiles]
-    chosen_attack_groups_ids[-1] -= 1
-    attack_severities = groups_severity[chosen_attack_groups_ids]
-
-    return chosen_attack_groups_ids, attack_severities, percentiles
 
 
 features_local = None

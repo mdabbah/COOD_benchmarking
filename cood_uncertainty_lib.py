@@ -1,4 +1,5 @@
 import itertools
+import os.path
 from typing import List
 
 import pandas as pd
@@ -6,14 +7,14 @@ import torch.nn
 
 from utils.input_handling_utilities import get_model_name, args_dict_to_str, get_dataset_name, handle_parameters, \
     handle_model_dict_input, get_kappa_name, sanity_check_confidence_input, CONFIDENCE_METRIC_INPUT_ERR_MSG, \
-    sanity_model_input, MODEL_INPUT_ERR_MSG
+    sanity_model_input, MODEL_INPUT_ERR_MSG, check_and_fix_transforms
 from utils.data_utils import load_model_results, create_dataset_metadata, save_model_results, create_data_loader, \
     get_dataset_num_of_classes, load_model_results_df
 import numpy as np
 
 from utils.kappa_dispatcher import get_confidence_function
 from utils.models_wrapper import MySimpleWrapper
-from utils.project_paths import get_paper_results_base_path
+from utils.project_paths import get_paper_results_base_path, get_datasets_metadata_base_path
 from utils.severity_estimation_utils import calc_per_class_severity, get_severity_levels_groups_of_classes
 from utils.misc import create_model_and_transforms_OOD, log_ood_results, default_transform, \
     get_default_transform_with_open
@@ -39,6 +40,8 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
 
     if transform is None:
         transform = get_default_transform_with_open()
+
+    transform = check_and_fix_transforms(transform)
 
     # create the data loader.
     all_data_loader = create_data_loader(datasets,
@@ -255,3 +258,13 @@ def get_paper_results(model_name: [str, None, List] = None,
         all_results = all_results.query(query).copy()
 
     return all_results
+
+def get_paper_dataset_info(path_to_full_imagenet21k, variation='default'):
+
+    if variation != 'default':
+        raise ValueError('not supported yet')
+
+    datasets_metadata_base_path = get_datasets_metadata_base_path()
+    metadata_path = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'IMAGENET_20k_METADATA.pkl')
+
+

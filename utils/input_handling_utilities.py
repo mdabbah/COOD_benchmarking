@@ -1,8 +1,9 @@
+import os.path
 from typing import Dict
 
 import torch.nn
 
-from utils.misc import create_model_and_transforms_OOD
+from utils.misc import create_model_and_transforms_OOD, add_open_transforms
 
 
 def get_model_name(model):
@@ -95,7 +96,7 @@ def sanity_model_input(model):
         return True
 
     if isinstance(model, dict):
-        return isinstance(model.get('nn.Module'), torch.nn.Module) or \
+        return isinstance(model.get('model'), torch.nn.Module) or \
                isinstance(model.get('model_name'), str)
 
 
@@ -111,3 +112,18 @@ def args_dict_to_str(args_dict):
         args_dict_str += f'_{k}-{v}'
 
     return args_dict_str
+
+
+def check_and_fix_transforms(transform):
+
+    test_image_path = os.path.join(os.path.dirname(__file__), 'test_image.jpeg')
+
+    try:
+        img_tensor = transform(test_image_path)
+
+    except Exception as e:
+        print('given transform does not open the image will be adding transoforms')
+        transform = add_open_transforms(transform)
+        img_tensor = transform(test_image_path)
+
+    return transform
