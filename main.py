@@ -5,6 +5,9 @@ from cood_uncertainty_lib import benchmark_model_on_cood_with_severities, get_pa
 if __name__ == '__main__':
 
     resnet50 = get_paper_results('resnet50', 'softmax')
+    multiple_models = get_paper_results(['resnet50', 'resnet18'], 'softmax')
+    multiple_models_kappas = get_paper_results(['resnet50', 'resnet18'], ['softmax', 'odin'])
+    all_models_paper_results = get_paper_results()
     # results2 = benchmark_model_on_cood_with_severities(model='resnet50')
     # plotly.express.line(results2, x='severity_levels', y='cood-auroc', color='model_name-kappa')
 
@@ -39,7 +42,7 @@ if __name__ == '__main__':
     custom_confidence_function = {'confidence_metric_name': 'softmax_response',
                                   'confidence_metric_callable': extract_softmax_on_dataset}
     results = benchmark_model_on_cood_with_severities(model='resnet18',
-                                                      confidence_metric=custom_confidence_function,
+                                                      confidence_function=custom_confidence_function,
                                                       cood_dataset_info=dummy_ood_dataset_info,
                                                       id_dataset_info=dummy_id_dataset_info)
     plotly.express.line(results, x='severity_level', y='ood-auroc', color='model_name-kappa')
@@ -58,7 +61,7 @@ if __name__ == '__main__':
     # Note to mohammed: the problem persists even if instead of transforms you'd use resnet50_transform for example
     example_model_input = {'model_name': 'mobilenet_v3_small', 'model': model, 'transforms': transforms}
     results = benchmark_model_on_cood_with_severities(model=example_model_input,
-                                                      confidence_metric='softmax',
+                                                      confidence_function='softmax',
                                                       cood_dataset_info=dummy_ood_dataset_info,
                                                       id_dataset_info=dummy_id_dataset_info)
     plotly.express.line(results, x='severity_level', y='ood-auroc', color='model_name-kappa')
