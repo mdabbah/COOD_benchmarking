@@ -12,6 +12,7 @@ import numpy as np
 
 from utils.kappa_dispatcher import get_confidence_function
 from utils.models_wrapper import MySimpleWrapper
+from utils.project_paths import get_paper_results_base_path
 from utils.severity_estimation_utils import calc_per_class_severity, get_severity_levels_groups_of_classes
 from utils.misc import create_model_and_transforms_OOD, log_ood_results, default_transform, \
     get_default_transform_with_open
@@ -49,12 +50,18 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
     # ID dummy dataset classes.
     #####
 
-    model = MySimpleWrapper(model.cuda(rank), model_name=model_name, datasets=datasets)
+    if torch.cuda.is_available():
+        device = torch.device(f'cuda:{rank}')
+    else:
+        device = torch.device('cpu')
+
+
+    model = MySimpleWrapper(model.to(device), model_name=model_name, datasets=datasets)
     if isinstance(function, dict):
         function = function['confidence_metric_callable']
 
     function = get_confidence_function(function)
-    results = function(model, all_data_loader, device=rank, confidence_args=confidence_args)
+    results = function(model, all_data_loader, device=device, confidence_args=confidence_args)
 
     del model
     return results
@@ -160,7 +167,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_metric='softmax', 
 
     results_file_tag = f'{kappa_name}{confidence_args_str}_n{num_severity_levels}'
 
-    model_results = load_model_results_df(model_name, f'{model_name}_{results_file_tag}')
+    model_results = load_model_results_df(model_name, f'{model_name}_{results_file_tag}.csv')
     if model_results is not None and not force_run:
         return model_results[model_results.severity_levels.isin(levels_to_benchmark)]
 
@@ -228,5 +235,6 @@ def get_paper_results(model_name: str, confidence_function: str) -> pd.DataFrame
     if confidence_function == 'odin':
         results_file_tag = f'odin_temperature-2_noise_mag-1e-05_n11'
 
-    model_results = load_model_results_df(model_name, f'{model_name}_{results_file_tag}')
+    model_results = load_model_results_df(model_name, f'{model_name}_{results_file_tag}.csv',
+                                          base_path=get_paper_results_base_path())
     return model_results

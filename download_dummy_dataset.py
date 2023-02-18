@@ -2,7 +2,7 @@ import os.path
 import urllib.request
 import progressbar
 # dummy_dataset_url = 'https://github.com/mdabbah/COOD_benchmarking/archive/refs/tags/dummy_dataset.tar.gz'
-# dummy_dataset_url = 'https://github.com/mdabbah/COOD_benchmarking/releases/download/dummy_dataset/dummy_dataset.tar.gz'
+dummy_dataset_url = 'https://github.com/mdabbah/COOD_benchmarking/releases/download/dummy_dataset/dummy_dataset.tar.gz'
 dummy_dataset_url = 'https://github.com/IdoGalil/ImageNet_training_baseline/releases/download/dataset/dummy_dataset.tar.gz'
 
 def get_save_dir_from_user():
@@ -48,6 +48,7 @@ def download_file(url):
 def download_dummy_dataset(download_dir=None):
     if download_dir is None:
         download_dir = get_save_dir_from_user()
+    os.makedirs(download_dir, exist_ok=True)
     targz_path = os.path.join(download_dir, 'dummy_dataset.tar.gz')
     id_path = os.path.join(download_dir, 'dummy_id')
     ood_path = os.path.join(download_dir, 'dummy_ood')
@@ -57,6 +58,12 @@ def download_dummy_dataset(download_dir=None):
         return
     print('Downloading dummy dataset')
     urllib.request.urlretrieve(dummy_dataset_url, targz_path, show_progress)
+
+    # import mechanize
+    # browser = mechanize.Browser()
+    # browser.retrieve(dummy_dataset_url,
+    #                  './test')
+
     print('Extracting dataset into ' + download_dir)
     os.system(f'tar -xzf {targz_path} -C {download_dir}')
 
@@ -65,4 +72,7 @@ def download_dummy_dataset(download_dir=None):
     print('In-distribution component of the dummy dataset path: ' + id_path)
     print('Class-out-of-distribution component of the dummy dataset path:' + ood_path)
 
-    # urllib.request.urlretrieve(dummy_dataset_url, filename=targz_path)
+
+
+if __name__ == '__main__':
+    download_dummy_dataset()

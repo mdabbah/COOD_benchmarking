@@ -10,7 +10,6 @@ import sys
 from timeit import default_timer as timer
 
 from utils.log_utils import Timer, Logger
-from utils.uncertainty_metrics import gamma_correlation, ECE_calc, AURC_calc, gini
 from utils.misc import to_cpu, MC_Dropout_Pass, enable_dropout
 
 
@@ -131,20 +130,20 @@ def get_per_class_centroids(model, data_loader, num_classes, device, return_coun
     model.eval()
     model.float()
     with torch.no_grad():
-        features = model.forward_features(data_loader.dataset[0][0].unsqueeze(0).to(f'cuda:{device}'))
+        features = model.forward_features(data_loader.dataset[0][0].unsqueeze(0).to(device))
         if len(features.shape) > 2:
             features = F.adaptive_avg_pool2d(features, output_size=[1, 1])
 
         embedding_size = int(features.shape[1])
 
-    centroids = torch.zeros([num_classes, embedding_size]).to(f'cuda:{device}')
-    class_counts = torch.zeros([num_classes]).to(f'cuda:{device}')
+    centroids = torch.zeros([num_classes, embedding_size]).to(device)
+    class_counts = torch.zeros([num_classes]).to(device)
 
     z = 0
     with torch.no_grad():
         for x, y in data_loader:
-            x = x.float().to(f'cuda:{device}')
-            y = y.to(f'cuda:{device}')
+            x = x.float().to(device)
+            y = y.to(device)
 
             # with Timer(f'forward pass time {device}:', print_human_readable=False):
             features = model.forward_features(x)
@@ -174,7 +173,7 @@ def get_per_class_centroids(model, data_loader, num_classes, device, return_coun
 
             # a faster way (maybe?)
             # with Timer('cache time:'):
-            #     cache = torch.zeros([num_classes, features.shape[0], embedding_size]).to(f'cuda:{device}')
+            #     cache = torch.zeros([num_classes, features.shape[0], embedding_size]).to(device)
             #     g = {}
             #     place = [g.get(i, -1) + 1 for i in y]
             #     cache[y, place, :] = features
@@ -250,9 +249,9 @@ def get_dataset_statistics(model, all_data_loader, base_centroids, attacker_clas
 
     num_attacker_classes = len(attacker_classes)
     num_base_classes = base_centroids.shape[0]
-    attackers_centroids = torch.zeros([num_attacker_classes, embedding_size]).to(f'cuda:{device}')
-    attackers_class_counts = torch.zeros([num_attacker_classes]).to(f'cuda:{device}')
-    attackers_avg_softmax = torch.zeros([num_attacker_classes]).to(f'cuda:{device}')
+    attackers_centroids = torch.zeros([num_attacker_classes, embedding_size]).to(device)
+    attackers_class_counts = torch.zeros([num_attacker_classes]).to(device)
+    attackers_avg_softmax = torch.zeros([num_attacker_classes]).to(device)
 
     confidences = {'softmax_conf': [], 'entropy_conf': [], 'correct': [], 'dists_conf': [], 'predictions': [], 'labels':
         []}
@@ -260,7 +259,7 @@ def get_dataset_statistics(model, all_data_loader, base_centroids, attacker_clas
     i = 0
     with torch.no_grad():
         for x, y in all_data_loader:
-            x = x.float().to(f'cuda:{device}')
+            x = x.float().to(device)
             logits = model(x)
             # print(f'features after pass: {features_local}')
             probs = F.softmax(logits, dim=1)
@@ -338,7 +337,7 @@ def extract_MC_dropout_signals_on_dataset(model, all_data_loader, confidence_arg
     num_batches = len(all_data_loader)
     with torch.no_grad():
         for x, y in all_data_loader:
-            x = x.float().to(f'cuda:{device}')
+            x = x.float().to(device)
 
             res_dict = MC_Dropout_Pass(x, model, dropout_iterations=30, classification=True)
 
@@ -390,7 +389,7 @@ def extract_mcd_entropy_on_dataset(model, all_data_loader, confidence_args=None,
         with tqdm.tqdm(desc="Evaluating with mc dropout as a confidence function", total=num_batches,
                        file=sys.stdout) as pbar:
             for x, y in all_data_loader:
-                x = x.float().to(f'cuda:{device}')
+                x = x.float().to(device)
 
                 res_dict = MC_Dropout_Pass(x, model, dropout_iterations=30, classification=True)
 
@@ -444,7 +443,7 @@ def extract_softmax_on_dataset(model, data_loader, confidence_args=None, device=
         with tqdm.tqdm(desc="Evaluating with softmax as a confidence function", total=num_batches,
                        file=sys.stdout) as pbar:
             for x, y in data_loader:
-                x = x.float().to(f'cuda:{device}')
+                x = x.float().to(device)
                 logits = model(x)
 
                 probs = F.softmax(logits, dim=1)
@@ -488,7 +487,7 @@ def extract_entropy_on_dataset(model, all_data_loader, confidence_args=None, dev
         with tqdm.tqdm(desc="Evaluating with entropy as a confidence function", total=num_batches,
                        file=sys.stdout) as pbar:
             for x, y in all_data_loader:
-                x = x.float().to(f'cuda:{device}')
+                x = x.float().to(device)
                 logits = model(x)
 
                 probs = F.softmax(logits, dim=1)
@@ -528,7 +527,7 @@ def extract_max_logit_on_dataset(model, all_data_loader, confidence_args=None, d
 
     with torch.no_grad():
         for x, y in all_data_loader:
-            x = x.float().to(f'cuda:{device}')
+            x = x.float().to(device)
             logits = model(x)
             max_logit_conf = torch.max(logits, dim=1)[0]
             confidences['confidences'].append(to_cpu(max_logit_conf))
@@ -567,16 +566,16 @@ def extract_odin_confidences_on_dataset(model, all_data_loader, confidence_args=
     confidences = {'softmax_conf': [], 'entropy_conf': [], 'correct': [], 'predictions': [], 'labels':
         [], 'odin_conf': []}
 
-    temperature = torch.tensor(temperature).float().to(f'cuda:{device}')
-    noiseMagnitude1 = torch.tensor(noiseMagnitude1).float().to(f'cuda:{device}')
+    temperature = torch.tensor(temperature).float().to(device)
+    noiseMagnitude1 = torch.tensor(noiseMagnitude1).float().to(device)
 
-    # image_norm_vector = torch.tensor([0.485, 0.456, 0.406]).float().to(f'cuda:{device}')
+    # image_norm_vector = torch.tensor([0.485, 0.456, 0.406]).float().to(device)
     # IDO and GUY check this vector I asume it's supposed to be the std vec for normalizing images
     # I took it from torch ...
-    image_norm_vector = torch.tensor([0.229, 0.224, 0.225]).float().to(f'cuda:{device}')
+    image_norm_vector = torch.tensor([0.229, 0.224, 0.225]).float().to(device)
     # odin github (https://github.com/facebookresearch/odin/blob/main/code/calData.py)
     # used this vector [(63.0 / 255.0), (62.1 / 255.0), (66.7 / 255.0)]
-    # image_norm_vector = torch.tensor([(63.0 / 255.0), (62.1 / 255.0), (66.7 / 255.0)]).float().to(f'cuda:{device}')
+    # image_norm_vector = torch.tensor([(63.0 / 255.0), (62.1 / 255.0), (66.7 / 255.0)]).float().to(device)
 
     image_norm_vector = image_norm_vector.view((1, 3, 1, 1))
 
@@ -584,7 +583,7 @@ def extract_odin_confidences_on_dataset(model, all_data_loader, confidence_args=
 
     # with torch.no_grad():
     for x, y in all_data_loader:
-        x = x.float().to(f'cuda:{device}')
+        x = x.float().to(device)
         x.requires_grad_(True)
         opt.zero_grad()
 
@@ -661,7 +660,7 @@ def extract_softmax_signals_on_dataset(model, all_data_loader, confidence_args=N
 
     with torch.no_grad():
         for x, y in all_data_loader:
-            x = x.float().to(f'cuda:{device}')
+            x = x.float().to(device)
             logits = model(x)
 
             probs = F.softmax(logits, dim=1)
@@ -707,7 +706,7 @@ def get_dataset_last_activations(model, all_data_loader, confidence_args=None, d
     num_batches = len(all_data_loader)
     with torch.no_grad():
         for x, y in all_data_loader:
-            x = x.float().to(f'cuda:{device}')
+            x = x.float().to(device)
             logits = model(x)
 
             probs = F.softmax(logits, dim=1)
@@ -750,7 +749,7 @@ def get_dataset_embeddings(model, all_data_loader, confidence_args=None, device=
 
     with torch.no_grad():
         for x, y in all_data_loader:
-            x = x.float().to(f'cuda:{device}')
+            x = x.float().to(device)
             features = model.forward_features(x)
 
             if isinstance(features, tuple):

@@ -1,8 +1,10 @@
-import plotly.express
+import plotly
 
-from cood_uncertainty_lib import benchmark_model_on_cood_with_severities
+from cood_uncertainty_lib import benchmark_model_on_cood_with_severities, get_paper_results
 
 if __name__ == '__main__':
+
+    resnet50 = get_paper_results('resnet50', 'softmax')
     # results2 = benchmark_model_on_cood_with_severities(model='resnet50')
     # plotly.express.line(results2, x='severity_levels', y='cood-auroc', color='model_name-kappa')
 

@@ -5,7 +5,6 @@ import torch.nn as nn
 
 from utils.data_utils import get_dataset_classes
 from utils.imagenet1K_synsets import class_to_idx
-from utils.input_handling_utilities import get_dataset_name
 from utils.misc import get_embedding_size
 
 
