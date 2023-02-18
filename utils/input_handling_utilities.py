@@ -14,17 +14,19 @@ def get_model_name(model):
         return model.__getattr__('model_name')
     elif isinstance(model, torch.nn.Module):
         return model.__class__.__name__
-    return 'default_model_results_dir'
+    return 'unnamed_model'
 
 
 def get_kappa_name(confidence_metric):
     if isinstance(confidence_metric, str):
         return confidence_metric
-    elif 'confidence_metric_name' in confidence_metric:
+    elif hasattr(confidence_metric, '__iter__') and 'confidence_metric_name' in confidence_metric:
         return confidence_metric['confidence_metric_name']
     elif hasattr(confidence_metric, 'confidence_metric_name'):
         return confidence_metric.__getattr__('confidence_metric_name')
-    return 'given_kappa'
+
+    # it's callable
+    return 'unnamed_kappa'
 
 
 def get_dataset_name(dataset_info_dict):
