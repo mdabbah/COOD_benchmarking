@@ -240,9 +240,9 @@ def get_paper_results(model_name: [str, None, List] = None,
         confidence_function = [confidence_function]
 
 
-
-    confidence_function = [f'odin_temperature-2_noise_mag-1e-05' if k == 'odin' else k
-        for k in confidence_function]
+    if isinstance(confidence_function, List):
+        confidence_function = [f'odin_temperature-2_noise_mag-1e-05' if k == 'odin' else k
+            for k in confidence_function]
 
     all_results = pd.read_csv('./paper_results/all_paper_results.csv')
     if model_name is not None:
