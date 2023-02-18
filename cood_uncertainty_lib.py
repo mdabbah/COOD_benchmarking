@@ -1,15 +1,18 @@
 import itertools
 import os.path
+import warnings
+import zipfile
 from typing import List
 
 import pandas as pd
 import torch.nn
+from tqdm import tqdm
 
 from utils.input_handling_utilities import get_model_name, args_dict_to_str, get_dataset_name, handle_parameters, \
     handle_model_dict_input, get_kappa_name, sanity_check_confidence_input, CONFIDENCE_METRIC_INPUT_ERR_MSG, \
     sanity_model_input, MODEL_INPUT_ERR_MSG, check_and_fix_transforms
 from utils.data_utils import load_model_results, create_dataset_metadata, save_model_results, create_data_loader, \
-    get_dataset_num_of_classes, load_model_results_df
+    get_dataset_num_of_classes, load_model_results_df, load_pickle, norm_paths, save_pickle
 import numpy as np
 
 from utils.kappa_dispatcher import get_confidence_function
@@ -58,7 +61,6 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
         device = torch.device(f'cuda:{rank}')
     else:
         device = torch.device('cpu')
-
 
     model = MySimpleWrapper(model.to(device), model_name=model_name, datasets=datasets)
     if isinstance(function, dict):
@@ -199,8 +201,6 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
                                                           batch_size=batch_size, num_workers=num_workers, rank=rank,
                                                           force_run=force_run, confidence_key=confidence_key)
 
-
-
     # get cood datasets classes
     cood_classes = severity_levels_info['severity_levels_groups']
 
@@ -236,17 +236,15 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
 
 def get_paper_results(model_name: [str, None, List] = None,
                       confidence_function: [str, None, List] = None) -> pd.DataFrame:
-
     if isinstance(model_name, str):
         model_name = [model_name]
 
     if isinstance(confidence_function, str):
         confidence_function = [confidence_function]
 
-
     if isinstance(confidence_function, List):
         confidence_function = [f'odin_temperature-2_noise_mag-1e-05' if k == 'odin' else k
-            for k in confidence_function]
+                               for k in confidence_function]
 
     all_results = pd.read_csv('./paper_results/all_paper_results.csv')
     if model_name is not None:
@@ -259,12 +257,38 @@ def get_paper_results(model_name: [str, None, List] = None,
 
     return all_results
 
-def get_paper_dataset_info(path_to_full_imagenet21k, variation='default'):
 
+def get_paper_dataset_info(path_to_full_imagenet21k, variation='default'):
     if variation != 'default':
         raise ValueError('not supported yet')
 
     datasets_metadata_base_path = get_datasets_metadata_base_path()
     metadata_path = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'IMAGENET_20k_METADATA.pkl')
+    if not os.path.exists(metadata_path):
+        path_to_zip_file = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'dataset_v4.zip')
+        directory_to_extract_to = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata')
+        with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
+            zip_ref.extractall(directory_to_extract_to)
+    dataset_metadata = load_pickle(metadata_path)
 
+    image_files = dataset_metadata['image_files']
+    image_files = norm_paths(image_files, path_to_full_imagenet21k, 'fall11_whole/')
+
+    dataset_metadata['image_files'] = image_files
+
+    # print('scanning given folder for the images used in our dataset:')
+    for img_path in tqdm(image_files, desc='scanning given folder for the images used in our dataset:'):
+
+        if not os.path.exists(img_path):
+            warnings.warn(F"WARNING: could not find {img_path} when scanning the given directory "
+                          F"which was part od the dataset used in the paper")
+
+    dataset_name = 'paper_default_dataset_v.4.0'
+    metadata_path = os.path.join(datasets_metadata_base_path, dataset_name)
+
+    save_pickle(metadata_path, dataset_metadata)
+    print(f'saved a new metadata dataset at {metadata_path}')
+
+    return {'dataset_name': dataset_name, 'images_base_folder': path_to_full_imagenet21k,
+            'test_estimation_split_percentage': 0.25}
 

@@ -136,19 +136,11 @@ def load_ds_img_paths_and_labels(dataset_name, ds_subset=None):
     return img_paths, labels
 
 
-# def norm_paths(dataset_name, img_paths):
-#     if dataset_name not in ('ImageNet_21K', 'ImageNet_20K', 'ImageNet_1K', 'ImageNet_O'):
-#         raise ValueError(f'dataset {dataset_name} not supported yet.')
-#
-#     base_folders_mappings = {'ImageNet_21K': (ImageNet_21K_BASE_FOLDER, 'fall11_whole/'),
-#                              'ImageNet_20K': (ImageNet_21K_BASE_FOLDER, 'fall11_whole/'),
-#                              'ImageNet_1K': (ImageNet_1K_BASE_FOLDER, 'ImageNet_1K/'),
-#                              'ImageNet_O': (ImageNet_O_BASE_FOLDER, 'imagenet-o/')}
-#
-#     new_base_folder, old_base_folder = base_folders_mappings[dataset_name]
-#     img_paths = [os.path.join(new_base_folder, img.split(old_base_folder)[1]) for img in img_paths]
-#
-#     return np.array(img_paths)
+def norm_paths(img_paths, new_base_folder, split_keyword):
+
+    img_paths = [os.path.join(new_base_folder, img.split(split_keyword)[1]) for img in img_paths]
+
+    return np.array(img_paths)
 
 
 def combine_datasets(dataset_names, ds_subsets):
