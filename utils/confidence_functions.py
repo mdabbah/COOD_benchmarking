@@ -551,8 +551,8 @@ def extract_odin_confidences_on_dataset(model, all_data_loader, confidence_args=
     """ implements: https://arxiv.org/pdf/1706.02690.pdf"""
 
     if confidence_args is None:
-        temperature = 1000
-        noiseMagnitude1 = 0.0014
+        temperature = 2
+        noiseMagnitude1 = 1e-5
     else:
         temperature = confidence_args['temperature']
         noiseMagnitude1 = confidence_args['noise_mag']
