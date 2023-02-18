@@ -8,6 +8,24 @@ if __name__ == '__main__':
     multiple_models = get_paper_results(['resnet50', 'resnet18'], 'softmax')
     multiple_models_kappas = get_paper_results(['resnet50', 'resnet18'], ['softmax', 'odin'])
     all_models_paper_results = get_paper_results()
+    dummy_ood_dataset_info = {
+        'dataset_name': 'Dummy_OOD',
+        'images_base_folder': r'..\test_COOD2\dummy_ood',
+        'test_estimation_split_percentage': 0.25
+    }
+
+    dummy_id_dataset_info = {
+        'dataset_name': 'Dummy_ID',
+        'images_base_folder': r'..\test_COOD2\dummy_id',
+    }
+    results = benchmark_model_on_cood_with_severities(model='resnet18',
+                                                      confidence_function='softmax',
+                                                      cood_dataset_info=dummy_ood_dataset_info,
+                                                      id_dataset_info=dummy_id_dataset_info)
+    fig = plotly.express.line(results, x='severity_level', y='ood-auroc', color='model_name-kappa')
+    fig.show('png')
+
+
     # results2 = benchmark_model_on_cood_with_severities(model='resnet50')
     # plotly.express.line(results2, x='severity_levels', y='cood-auroc', color='model_name-kappa')
 
