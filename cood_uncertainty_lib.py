@@ -283,7 +283,7 @@ def get_paper_dataset_info(path_to_full_imagenet21k, variation='default', skip_s
                 warnings.warn(F"WARNING: could not find {img_path} when scanning the given directory "
                               F"which was part od the dataset used in the paper")
 
-    dataset_name = 'paper_default_dataset_v.4.0'
+    dataset_name = 'paper_default_ood_dataset_v.4.0'
     metadata_path = os.path.join(datasets_metadata_base_path, dataset_name)
 
     save_pickle(metadata_path, dataset_metadata)
