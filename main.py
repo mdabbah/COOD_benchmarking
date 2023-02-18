@@ -22,8 +22,8 @@ if __name__ == '__main__':
                                                       confidence_function='softmax',
                                                       cood_dataset_info=dummy_ood_dataset_info,
                                                       id_dataset_info=dummy_id_dataset_info)
-    fig = plotly.express.line(results, x='severity_level', y='ood-auroc', color='model_name-kappa')
-    fig.show('png')
+    # fig = plotly.express.line(results, x='severity_level', y='ood-auroc', color='model_name-kappa')
+    # fig.show('png')
 
 
     # results2 = benchmark_model_on_cood_with_severities(model='resnet50')
@@ -40,20 +40,6 @@ if __name__ == '__main__':
     # }
 
     from download_dummy_dataset import download_dummy_dataset
-    download_dummy_dataset('../test_COOD')
-
-    dummy_ood_dataset_info = {
-        'dataset_name': 'Dummy_OOD',
-        'images_base_folder': '..\dummy_dataset\dummy_ood',  # <path to images dir>/classname/*.(jpg|png|jpeg)
-        # 'images_base_folder': '/media/mohammed/Elements1/exported_datasets/dummy_ood',  # <path to images dir>/classname/*.(jpg|png|jpeg)
-        'test_estimation_split_percentage': 0.25
-    }
-
-    dummy_id_dataset_info = {
-        'dataset_name': 'Dummy_ID',
-        'images_base_folder': '..\dummy_dataset\dummy_id',
-        # 'images_base_folder': '/media/mohammed/Elements1/exported_datasets/dummy_id'
-    }
 
     from utils.confidence_functions import extract_softmax_on_dataset
 

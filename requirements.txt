@@ -1,5 +1,5 @@
 timm~=0.6.12
-plotly~=3.5.0
+plotly~=5.13.0
 git+https://github.com/openai/CLIP.git
 pandas>=0.25
 numpy~=1.16.0

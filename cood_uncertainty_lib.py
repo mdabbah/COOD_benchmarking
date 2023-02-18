@@ -77,7 +77,7 @@ def get_cood_benchmarking_datasets(model, confidence_function='softmax_conf', co
                                    cood_dataset_info='default', num_severity_levels=11, num_id_classes=1000,
                                    batch_size=64, num_workers=2, rank=0, force_run=False, confidence_key='confidences'):
     assert sanity_check_confidence_input(confidence_function), CONFIDENCE_METRIC_INPUT_ERR_MSG
-    assert sanity_model_input(confidence_function), MODEL_INPUT_ERR_MSG
+    assert sanity_model_input(model), MODEL_INPUT_ERR_MSG
 
     confidence_args_str = args_dict_to_str(confidence_args)
     model_name = get_model_name(model)
@@ -159,7 +159,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
                                      confidence_key)
 
     assert sanity_check_confidence_input(confidence_function), CONFIDENCE_METRIC_INPUT_ERR_MSG
-    assert sanity_model_input(confidence_function), MODEL_INPUT_ERR_MSG
+    assert sanity_model_input(model), MODEL_INPUT_ERR_MSG
 
     confidence_args_str = args_dict_to_str(confidence_args)
     model_name = get_model_name(model)
