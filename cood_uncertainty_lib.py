@@ -258,7 +258,7 @@ def get_paper_results(model_name: [str, None, List] = None,
     return all_results
 
 
-def get_paper_dataset_info(path_to_full_imagenet21k, variation='default'):
+def get_paper_dataset_info(path_to_full_imagenet21k, variation='default', skip_scan=False):
     if variation != 'default':
         raise ValueError('not supported yet')
 
@@ -276,12 +276,12 @@ def get_paper_dataset_info(path_to_full_imagenet21k, variation='default'):
 
     dataset_metadata['image_files'] = image_files
 
-    # print('scanning given folder for the images used in our dataset:')
-    for img_path in tqdm(image_files, desc='scanning given folder for the images used in our dataset:'):
+    if skip_scan:
+        for img_path in tqdm(image_files, desc='scanning given folder for the images used in our dataset'):
 
-        if not os.path.exists(img_path):
-            warnings.warn(F"WARNING: could not find {img_path} when scanning the given directory "
-                          F"which was part od the dataset used in the paper")
+            if not os.path.exists(img_path):
+                warnings.warn(F"WARNING: could not find {img_path} when scanning the given directory "
+                              F"which was part od the dataset used in the paper")
 
     dataset_name = 'paper_default_dataset_v.4.0'
     metadata_path = os.path.join(datasets_metadata_base_path, dataset_name)
