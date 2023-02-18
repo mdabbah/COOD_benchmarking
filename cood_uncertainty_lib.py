@@ -169,6 +169,8 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
     results_file_tag = f'{kappa_name}{confidence_args_str}_n{num_severity_levels}'
 
     model_results = load_model_results_df(model_name, f'{model_name}_{results_file_tag}.csv')
+    if levels_to_benchmark == 'all':
+        levels_to_benchmark = np.arange(num_severity_levels)
     if model_results is not None and not force_run:
         return model_results[model_results['severity level'].isin(levels_to_benchmark)]
 
@@ -194,8 +196,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
                                                           batch_size=batch_size, num_workers=num_workers, rank=rank,
                                                           force_run=force_run, confidence_key=confidence_key)
 
-    if levels_to_benchmark == 'all':
-        levels_to_benchmark = np.arange(num_severity_levels)
+
 
     # get cood datasets classes
     cood_classes = severity_levels_info['severity_levels_groups']
