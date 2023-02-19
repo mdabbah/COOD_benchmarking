@@ -122,7 +122,6 @@ def check_and_fix_transforms(transform):
         img_tensor = transform(test_image_path)
 
     except Exception as e:
-        print('given transform does not open the image will be adding transoforms')
         transform = add_open_transforms(transform)
         img_tensor = transform(test_image_path)
 
