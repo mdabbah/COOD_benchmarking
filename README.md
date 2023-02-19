@@ -16,4 +16,4 @@ We plan to add a few more features in the following updates, including:
 
 1. A download link to our filtered subset of ImageNet-21k used for benchmarking in the paper. This will save users the need to download the entire ImageNet-21k first.
 
-2. Including \ excluding “biologically different” classes (viceroy butterflies vs. monarch butterflies etc.) and inanimate objects defined to be used differently (ping pong balls vs. cue balls etc.). More information about this is provided in Section 4 of the paper.
+2. Including \ excluding “biologically distinct” classes (viceroy butterflies vs. monarch butterflies etc.) and “visually ambiguous objects” (ping pong balls vs. cue balls etc.). More information about this is provided in Section 4 of the paper.
