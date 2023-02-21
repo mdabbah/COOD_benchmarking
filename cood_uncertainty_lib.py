@@ -260,7 +260,7 @@ def get_paper_results(model_name: [str, None, List] = None,
 
 def get_paper_dataset_info(path_to_full_imagenet21k, skip_scan=False, exclude_biologically_distinct_classes=False,
                            exclude_visually_ambiguous_objects=True):
-    if exclude_biologically_distinct_classes or exclude_visually_ambiguous_objects is False:
+    if exclude_biologically_distinct_classes or not exclude_visually_ambiguous_objects:
         raise ValueError('not supported yet')
 
     datasets_metadata_base_path = get_datasets_metadata_base_path()
