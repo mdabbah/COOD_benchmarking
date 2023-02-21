@@ -1,10 +1,14 @@
 import plotly.express
 
-from cood_uncertainty_lib import benchmark_model_on_cood_with_severities, get_paper_results, get_paper_dataset_info
+from cood_uncertainty_lib import benchmark_model_on_cood_with_severities, get_paper_results, get_paper_ood_dataset_info, \
+    get_paper_id_dataset_info
 
 if __name__ == '__main__':
+    path_to_full_imagenet1k = 'D:\ImageNet_1K\ILSVRC2012_img_val'
+    get_paper_id_dataset_info(path_to_full_imagenet1k, skip_scan=False)
+
     path_to_full_imagenet21k = r'D:\fall11_whole'
-    paper_dataset_info_ood = get_paper_dataset_info(path_to_full_imagenet21k, variation='default')
+    paper_dataset_info_ood = get_paper_ood_dataset_info(path_to_full_imagenet21k, skip_scan=True)
 
     resnet50 = get_paper_results('resnet50', 'softmax')
     multiple_models = get_paper_results(['resnet50', 'resnet18'], 'softmax')
