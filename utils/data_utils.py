@@ -1,9 +1,13 @@
 import glob
 import os
 import pickle
+from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool
+
 import numpy as np
 import pandas as pd
 import torch
+from tqdm import tqdm
 
 from utils.custom_dataset import CustomedDataset
 from utils.project_paths import get_results_base_path, get_datasets_metadata_base_path
@@ -137,10 +141,25 @@ def load_ds_img_paths_and_labels(dataset_name, ds_subset=None):
 
 
 def norm_paths(img_paths, new_base_folder, split_keyword):
-
     img_paths = [os.path.join(new_base_folder, img.split(split_keyword)[1]) for img in img_paths]
 
     return np.array(img_paths)
+
+
+def check_file_exists(img_path):
+    if not os.path.exists(img_path):
+        raise ValueError(f"Error: could not find {img_path} when scanning the given directory "
+                         f"which was part od the dataset used in the paper")
+
+
+def check_files_exist(image_files):
+    pool = ThreadPool()  # Create a multiprocessing pool
+    # Use a set for faster lookups
+    existing_files = set(filter(os.path.exists, image_files))
+    # Use tqdm to display progress
+    for _ in tqdm(pool.imap(check_file_exists, existing_files), total=len(existing_files),
+                  desc='scanning given folder for the images used in our dataset'):
+        pass
 
 
 def combine_datasets(dataset_names, ds_subsets):

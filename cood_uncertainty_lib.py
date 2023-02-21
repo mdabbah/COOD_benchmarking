@@ -12,7 +12,8 @@ from utils.input_handling_utilities import get_model_name, args_dict_to_str, get
     handle_model_dict_input, get_kappa_name, sanity_check_confidence_input, CONFIDENCE_METRIC_INPUT_ERR_MSG, \
     sanity_model_input, MODEL_INPUT_ERR_MSG, check_and_fix_transforms
 from utils.data_utils import load_model_results, create_dataset_metadata, save_model_results, create_data_loader, \
-    get_dataset_num_of_classes, load_model_results_df, load_pickle, norm_paths, save_pickle, load_dataset_metadata
+    get_dataset_num_of_classes, load_model_results_df, load_pickle, norm_paths, save_pickle, load_dataset_metadata, \
+    check_files_exist
 import numpy as np
 
 from utils.kappa_dispatcher import get_confidence_function
@@ -280,14 +281,14 @@ def get_paper_ood_dataset_info(path_to_full_imagenet21k, skip_scan=False, exclud
 
 def get_paper_id_dataset_info(path_to_full_imagenet1k, skip_scan=False):
     datasets_metadata_base_path = get_datasets_metadata_base_path()
-    metadata_path = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'IMAGENET_1k_METADATA.pkl')
+    metadata_path = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'IMAGENET_1k_val_METADATA.pkl')
 
     new_dataset_name = 'paper_default_id_dataset_v.4.0'
 
     dataset_info = fix_prebuilt_dataset_meta_data_paths(new_base_dir_path=path_to_full_imagenet1k,
                                                         metadata_path=metadata_path,
                                                         new_dataset_name=new_dataset_name,
-                                                        stitch_keyword='fall11_whole/',
+                                                        stitch_keyword='LSVRC2012_img_val/',
                                                         skip_scan=skip_scan)
 
     return dataset_info
@@ -296,9 +297,11 @@ def get_paper_id_dataset_info(path_to_full_imagenet1k, skip_scan=False):
 def fix_prebuilt_dataset_meta_data_paths(new_base_dir_path, metadata_path,
                                          new_dataset_name, stitch_keyword, skip_scan):
     datasets_metadata_base_path = get_datasets_metadata_base_path()
-    if not os.path.exists(metadata_path):
-        path_to_zip_file = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'dataset_v4.zip')
+    if not os.path.exists(metadata_path):   
+        path_to_zip_file = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata',
+                                        'datasets_metadata_v4.zip')
         directory_to_extract_to = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata')
+
         with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
             zip_ref.extractall(directory_to_extract_to)
 
@@ -320,7 +323,8 @@ def fix_prebuilt_dataset_meta_data_paths(new_base_dir_path, metadata_path,
     dataset_metadata['image_files'] = image_files
     dataset_metadata['dataset_base_folder'] = new_base_dir_path
 
-    if skip_scan:
+    if not skip_scan:
+        # check_files_exist(image_files)
         for img_path in tqdm(image_files, desc='scanning given folder for the images used in our dataset'):
 
             if not os.path.exists(img_path):
