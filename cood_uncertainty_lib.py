@@ -12,7 +12,7 @@ from utils.input_handling_utilities import get_model_name, args_dict_to_str, get
     handle_model_dict_input, get_kappa_name, sanity_check_confidence_input, CONFIDENCE_METRIC_INPUT_ERR_MSG, \
     sanity_model_input, MODEL_INPUT_ERR_MSG, check_and_fix_transforms
 from utils.data_utils import load_model_results, create_dataset_metadata, save_model_results, create_data_loader, \
-    get_dataset_num_of_classes, load_model_results_df, load_pickle, norm_paths, save_pickle
+    get_dataset_num_of_classes, load_model_results_df, load_pickle, norm_paths, save_pickle, load_dataset_metadata
 import numpy as np
 
 from utils.kappa_dispatcher import get_confidence_function
@@ -258,38 +258,76 @@ def get_paper_results(model_name: [str, None, List] = None,
     return all_results
 
 
-def get_paper_dataset_info(path_to_full_imagenet21k, skip_scan=False, exclude_biologically_distinct_classes=False,
-                           exclude_visually_ambiguous_objects=True):
+def get_paper_ood_dataset_info(path_to_full_imagenet21k, skip_scan=False, exclude_biologically_distinct_classes=False,
+                               exclude_visually_ambiguous_objects=True):
     if exclude_biologically_distinct_classes or not exclude_visually_ambiguous_objects:
         raise ValueError('not supported yet')
 
     datasets_metadata_base_path = get_datasets_metadata_base_path()
     metadata_path = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'IMAGENET_20k_METADATA.pkl')
+
+    new_dataset_name = 'paper_default_ood_dataset_v.4.0'
+
+    dataset_info = fix_prebuilt_dataset_meta_data_paths(new_base_dir_path=path_to_full_imagenet21k,
+                                                        metadata_path=metadata_path,
+                                                        new_dataset_name=new_dataset_name,
+                                                        stitch_keyword='fall11_whole/',
+                                                        skip_scan=skip_scan)
+    dataset_info['test_estimation_split_percentage'] = 0.25
+
+    return dataset_info
+
+
+def get_paper_id_dataset_info(path_to_full_imagenet1k, skip_scan=False):
+    datasets_metadata_base_path = get_datasets_metadata_base_path()
+    metadata_path = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'IMAGENET_1k_METADATA.pkl')
+
+    new_dataset_name = 'paper_default_id_dataset_v.4.0'
+
+    dataset_info = fix_prebuilt_dataset_meta_data_paths(new_base_dir_path=path_to_full_imagenet1k,
+                                                        metadata_path=metadata_path,
+                                                        new_dataset_name=new_dataset_name,
+                                                        stitch_keyword='fall11_whole/',
+                                                        skip_scan=skip_scan)
+
+    return dataset_info
+
+
+def fix_prebuilt_dataset_meta_data_paths(new_base_dir_path, metadata_path,
+                                         new_dataset_name, stitch_keyword, skip_scan):
+    datasets_metadata_base_path = get_datasets_metadata_base_path()
     if not os.path.exists(metadata_path):
         path_to_zip_file = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'dataset_v4.zip')
         directory_to_extract_to = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata')
         with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
             zip_ref.extractall(directory_to_extract_to)
+
     dataset_metadata = load_pickle(metadata_path)
+    new_metadata_path = os.path.join(datasets_metadata_base_path, new_dataset_name + '_metadata.pkl')
+
+    if os.path.exists(new_metadata_path) and skip_scan:
+        # if it exists then load it and make sure the given path is still the one used
+        # in the cached metadata
+        new_dataset_metadata = load_pickle(metadata_path)
+        images_base_dir = new_dataset_metadata['dataset_base_folder']
+        if images_base_dir == new_base_dir_path:
+            ## no need to fix or scan
+            return {'dataset_name': new_dataset_name, 'images_base_folder': new_base_dir_path}
 
     image_files = dataset_metadata['image_files']
-    image_files = norm_paths(image_files, path_to_full_imagenet21k, 'fall11_whole/')
+    image_files = norm_paths(image_files, new_base_dir_path, stitch_keyword)
 
     dataset_metadata['image_files'] = image_files
+    dataset_metadata['dataset_base_folder'] = new_base_dir_path
 
     if skip_scan:
         for img_path in tqdm(image_files, desc='scanning given folder for the images used in our dataset'):
 
             if not os.path.exists(img_path):
-                warnings.warn(F"WARNING: could not find {img_path} when scanning the given directory "
-                              F"which was part od the dataset used in the paper")
+                raise ValueError(f"Error: could not find {img_path} when scanning the given directory "
+                                 f"which was part od the dataset used in the paper")
 
-    dataset_name = 'paper_default_ood_dataset_v.4.0'
-    metadata_path = os.path.join(datasets_metadata_base_path, dataset_name)
+    save_pickle(new_metadata_path, dataset_metadata)
+    print(f'saved a new metadata dataset at {new_metadata_path}')
 
-    save_pickle(metadata_path, dataset_metadata)
-    print(f'saved a new metadata dataset at {metadata_path}')
-
-    return {'dataset_name': dataset_name, 'images_base_folder': path_to_full_imagenet21k,
-            'test_estimation_split_percentage': 0.25}
-
+    return {'dataset_name': new_dataset_name, 'images_base_folder': new_base_dir_path}

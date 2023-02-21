@@ -74,8 +74,8 @@ def create_dataset_metadata(dataset_info_dict, is_id_dataset=False):
         percentage = dataset_info_dict['test_estimation_split_percentage']
         train_idx, val_idx = split_dataset(labels, percentage)
 
-    meta_data = {'image_files': image_files, 'labels': labels, 'class_names': class_names,
-                 'train_idx': train_idx, 'val_idx': val_idx, 'num_classes': len(class_names)}
+    meta_data = {'image_files': image_files, 'labels': labels, 'class_names': class_names, 'train_idx': train_idx,
+                 'val_idx': val_idx, 'num_classes': len(class_names), 'images_base_folder': dataset_base_folder}
 
     save_pickle(dataset_metadata_path, meta_data)
 
