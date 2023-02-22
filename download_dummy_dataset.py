@@ -1,9 +1,7 @@
 import os.path
 import urllib.request
 import progressbar
-# dummy_dataset_url = 'https://github.com/mdabbah/COOD_benchmarking/archive/refs/tags/dummy_dataset.tar.gz'
 dummy_dataset_url = 'https://github.com/mdabbah/COOD_benchmarking/releases/download/dummy_dataset/dummy_dataset.tar.gz'
-dummy_dataset_url = 'https://github.com/IdoGalil/ImageNet_training_baseline/releases/download/dataset/dummy_dataset.tar.gz'
 
 def get_save_dir_from_user():
     while True:
