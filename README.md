@@ -11,6 +11,10 @@ An in-depth guide with examples for how to use the framework is provided in exam
 
 This framework allows to benchmark C-OOD detection performance on any custom dataset (including ImageNet, as described in the paper) of models and their confidence function (OOD detection algorithm, i.e, ODIN, softmax, MC Dropout, etc.).
 
+## Leaderboard
+We invite you to share the performance of your models and technique when using this framework on:
+https://paperswithcode.com/sota/classification-on-imagenet-c-ood-class-out-of
+
 ## Upcoming features
 We plan to add a few more features in the following updates, including:
 
