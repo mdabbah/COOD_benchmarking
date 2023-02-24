@@ -89,15 +89,17 @@ def get_cood_benchmarking_datasets(model, confidence_function='softmax_conf', co
     model_name = get_model_name(model)
 
     confidence_metric_name = get_kappa_name(confidence_function)
+    cood_dataset_name = get_dataset_name(cood_dataset_info)  # ImageNet_20K
+    create_dataset_metadata(cood_dataset_info)
+
+    results_subdir_name = os.path.join(model_name, f'{cood_dataset_name}')
 
     severity_levels_info_file_tag = f'severity_levels_info_n{num_severity_levels}_' \
                                     f'{confidence_metric_name}_{confidence_key}{confidence_args_str}'
-    severity_levels_info = load_model_results(model_name=model_name, data_name=severity_levels_info_file_tag)
+    severity_levels_info = load_model_results(results_subdir_name=results_subdir_name,
+                                              data_name=severity_levels_info_file_tag)
     if severity_levels_info is not None and not force_run:
         return severity_levels_info
-
-    cood_dataset_name = get_dataset_name(cood_dataset_info)  # ImageNet_20K
-    create_dataset_metadata(cood_dataset_info)
 
     partial_tag = confidence_metric_name
 
@@ -105,7 +107,7 @@ def get_cood_benchmarking_datasets(model, confidence_function='softmax_conf', co
     confidence_file_tag = f'confidence_scores_{partial_tag}{confidence_args_str}_cood_estimation_samples'
 
     # part 1: estimate severity
-    train_ood_confidences = load_model_results(model_name, confidence_file_tag)
+    train_ood_confidences = load_model_results(results_subdir_name, confidence_file_tag)
     if train_ood_confidences is None and not force_run:
         results = apply_model_function_on_dataset_samples(rank=rank, model=model,
                                                           datasets=[cood_dataset_name],
@@ -116,7 +118,7 @@ def get_cood_benchmarking_datasets(model, confidence_function='softmax_conf', co
                                                           confidence_args=confidence_args)
 
         train_ood_confidences = aggregate_results_from_batches(results)
-        save_model_results(model_name, train_ood_confidences, confidence_file_tag)
+        save_model_results(results_subdir_name, train_ood_confidences, confidence_file_tag)
 
     # part 2: create severity levels
 
@@ -126,7 +128,7 @@ def get_cood_benchmarking_datasets(model, confidence_function='softmax_conf', co
                                                                  num_severity_levels=num_severity_levels,
                                                                  num_classes_per_group=num_id_classes)
 
-    save_model_results(model_name, severity_levels_info, severity_levels_info_file_tag)
+    save_model_results(results_subdir_name, severity_levels_info, severity_levels_info_file_tag)
 
     return severity_levels_info
 
@@ -169,20 +171,21 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
 
     confidence_args_str = args_dict_to_str(confidence_args)
     model_name = get_model_name(model)
-
     kappa_name = get_kappa_name(confidence_function)
-
-    results_file_tag = f'{kappa_name}{confidence_args_str}_n{num_severity_levels}'
-
-    model_results = load_model_results_df(model_name, f'{model_name}_{results_file_tag}.csv')
-    if levels_to_benchmark == 'all':
-        levels_to_benchmark = np.arange(num_severity_levels)
-    if model_results is not None and not force_run:
-        return model_results[model_results['severity level'].isin(levels_to_benchmark)]
 
     (cood_dataset_info, id_dataset_info) = handle_parameters(cood_dataset_info, id_dataset_info)
     cood_dataset_name = get_dataset_name(cood_dataset_info)  # ImageNet_20K
     id_dataset_name = get_dataset_name(id_dataset_info)  # ImageNet_1K
+
+    results_file_tag = f'{kappa_name}{confidence_args_str}_n{num_severity_levels}'
+
+    results_subdir_name = os.path.join(model, f'{cood_dataset_name}-{id_dataset_name}')
+
+    model_results = load_model_results_df(results_subdir_name, f'{model_name}_{results_file_tag}.csv')
+    if levels_to_benchmark == 'all':
+        levels_to_benchmark = np.arange(num_severity_levels)
+    if model_results is not None and not force_run:
+        return model_results[model_results['severity level'].isin(levels_to_benchmark)]
 
     create_dataset_metadata(cood_dataset_info)
     create_dataset_metadata(id_dataset_info, is_id_dataset=True)
@@ -206,7 +209,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
     cood_classes = severity_levels_info['severity_levels_groups']
 
     confidence_file_tag = f'stats_{partial_tag}{confidence_args_str}_all_val'
-    validation_confidences = load_model_results(model_name, confidence_file_tag)
+    validation_confidences = load_model_results(results_subdir_name, confidence_file_tag)
     if validation_confidences is None and not force_run:
         results = apply_model_function_on_dataset_samples(rank=rank, model=model,
                                                           datasets=[id_dataset_name, cood_dataset_name],
@@ -217,7 +220,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
                                                           confidence_args=confidence_args)
 
         validation_confidences = aggregate_results_from_batches(results)
-        save_model_results(model_name, validation_confidences, confidence_file_tag)
+        save_model_results(results_subdir_name, validation_confidences, confidence_file_tag)
 
     # part 4: evaluate the OOD performance
 
@@ -226,7 +229,9 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
     ood_results = calc_OOD_metrics(cood_classes + num_id_classes, validation_confidences, confidence_key)
 
     percentiles = severity_levels_info['percentiles']
-    model_info = {'model_name': model_name, 'kappa': f'{kappa_name}_{confidence_key}'}
+    model_info = {'model_name': model_name, 'kappa': f'{kappa_name}_{confidence_key}',
+                  'id dataset': id_dataset_name, 'ood dataset': cood_dataset_name,
+                  'results_subdir_name': results_subdir_name}
 
     model_results = log_ood_results(model_info, ood_results, results_file_tag, percentiles)
 
@@ -269,7 +274,7 @@ def get_paper_ood_dataset_info(path_to_full_imagenet21k, skip_scan=False, exclud
 
     new_dataset_name = 'paper_default_ood_dataset_v.4.0'
 
-    dataset_info = fix_prebuilt_dataset_meta_data_paths(new_base_dir_path=path_to_full_imagenet21k,
+    dataset_info = fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir=path_to_full_imagenet21k,
                                                         metadata_path=metadata_path,
                                                         new_dataset_name=new_dataset_name,
                                                         stitch_keyword='fall11_whole/',
@@ -285,7 +290,7 @@ def get_paper_id_dataset_info(path_to_full_imagenet1k, skip_scan=False):
 
     new_dataset_name = 'paper_default_id_dataset_v.4.0'
 
-    dataset_info = fix_prebuilt_dataset_meta_data_paths(new_base_dir_path=path_to_full_imagenet1k,
+    dataset_info = fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir=path_to_full_imagenet1k,
                                                         metadata_path=metadata_path,
                                                         new_dataset_name=new_dataset_name,
                                                         stitch_keyword='LSVRC2012_img_val/',
@@ -294,10 +299,10 @@ def get_paper_id_dataset_info(path_to_full_imagenet1k, skip_scan=False):
     return dataset_info
 
 
-def fix_prebuilt_dataset_meta_data_paths(new_base_dir_path, metadata_path,
+def fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir, metadata_path,
                                          new_dataset_name, stitch_keyword, skip_scan):
     datasets_metadata_base_path = get_datasets_metadata_base_path()
-    if not os.path.exists(metadata_path):   
+    if not os.path.exists(metadata_path):
         path_to_zip_file = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata',
                                         'datasets_metadata_v4.zip')
         directory_to_extract_to = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata')
@@ -311,17 +316,18 @@ def fix_prebuilt_dataset_meta_data_paths(new_base_dir_path, metadata_path,
     if os.path.exists(new_metadata_path) and skip_scan:
         # if it exists then load it and make sure the given path is still the one used
         # in the cached metadata
-        new_dataset_metadata = load_pickle(metadata_path)
+        new_dataset_metadata = load_pickle(new_metadata_path)
         images_base_dir = new_dataset_metadata['dataset_base_folder']
-        if images_base_dir == new_base_dir_path:
+        if images_base_dir == new_dataset_base_dir:
             ## no need to fix or scan
-            return {'dataset_name': new_dataset_name, 'images_base_folder': new_base_dir_path}
+            return {'dataset_name': new_dataset_name, 'images_base_folder': new_dataset_base_dir}
 
     image_files = dataset_metadata['image_files']
-    image_files = norm_paths(image_files, new_base_dir_path, stitch_keyword)
+    image_files = norm_paths(image_files, new_dataset_base_dir, stitch_keyword)
 
     dataset_metadata['image_files'] = image_files
-    dataset_metadata['dataset_base_folder'] = new_base_dir_path
+    dataset_metadata['dataset_base_folder'] = new_dataset_base_dir
+    dataset_metadata['class_names'] = dataset_metadata['wordnet_ids']
 
     if not skip_scan:
         # check_files_exist(image_files)
@@ -334,4 +340,4 @@ def fix_prebuilt_dataset_meta_data_paths(new_base_dir_path, metadata_path,
     save_pickle(new_metadata_path, dataset_metadata)
     print(f'saved a new metadata dataset at {new_metadata_path}')
 
-    return {'dataset_name': new_dataset_name, 'images_base_folder': new_base_dir_path}
+    return {'dataset_name': new_dataset_name, 'images_base_folder': new_dataset_base_dir}

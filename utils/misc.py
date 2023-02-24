@@ -106,7 +106,7 @@ def get_fc_layer(model):
 def get_timm_transforms(model):
     config = resolve_data_config({}, model=model)
     open_img_transforms = get_open_img_transforms()
-    transform = transforms.Compose([open_img_transforms, create_transform(**config)])
+    transform = tvtf.Compose([open_img_transforms, create_transform(**config)])
     return transform
 
 
@@ -118,10 +118,15 @@ def log_ood_results(model_info, ood_results, results_file_tag, percentiles):
     model_results['severity level'] = np.arange(len(percentiles))
     model_results['model name - confidence function'] = model_info['model_name'] + '-' + model_info['kappa']
 
+    model_results['id dataset'] = model_info['id dataset']
+    model_results['ood dataset'] = model_info['ood dataset']
+
+
     model_name = model_info['model_name']
+    results_subdir_name = model_info['results_subdir_name']
 
     base_folder = get_results_base_path()
-    model_dir = os.path.join(base_folder, model_name)
+    model_dir = os.path.join(base_folder, results_subdir_name)
     private_log_path = os.path.join(model_dir, f'{model_name}_{results_file_tag}.csv')
     model_results.to_csv(private_log_path, index=False)
 
@@ -351,14 +356,10 @@ def MC_Dropout_Pass(x, model, dropout_iterations=30, classification=True):
     label_predictions = mean.max(1)[1]
     output_mean = torch.mean(predictions, dim=0, keepdim=True)
     if not classification:
-        assert False
-        output_variance = torch.var(predictions, dim=0)
-        # prediction_variance = output_variance[:, label_predictions]
-        # prediction_variance = output_variance.index_select(dim=1, index=label_predictions)
-        # prediction_variance = output_variance[label_predictions.unsqueeze(1)]
+        assert False  ## our library currently deals with classification
+
         prediction_variance = torch.gather(output_variance, -1, label_predictions.unsqueeze(-1)).squeeze(1)
-        return [-prediction_variance, label_predictions]
-        return output_mean, output_variance  # Return predictions & uncertainty
+        return {'prediction_variance': -prediction_variance, 'label_predictions': label_predictions}
 
     epsilon = sys.float_info.min
     # Calculating entropy across multiple MCD forward passes
@@ -370,6 +371,3 @@ def MC_Dropout_Pass(x, model, dropout_iterations=30, classification=True):
 
     return {'entropy_conf': -entropy, 'label_predictions': label_predictions,
             'mutual_information': mutual_info, 'mean_p': mean}  # return all
-    return [-entropy, label_predictions]  # Change it if using another metric other than entropy
-    # return [-mutual_info, label_predictions]  # Change it if using another metric other than entropy
-    return output_mean, entropy, mutual_info  # Return predictions & uncertainty
