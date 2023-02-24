@@ -133,42 +133,6 @@ def log_ood_results(model_info, ood_results, results_file_tag, percentiles):
     return model_results
 
 
-def aggregate_confidences(results_list, axis=None):
-    confidences = {k: [] for k in results_list[0].keys()}
-
-    for r in results_list:
-        for k, v in confidences.items():
-            v.extend(r[k])
-
-    confidences = {k: np.concatenate(v, axis=axis) for k, v in confidences.items()}
-    return confidences
-
-
-def fix(results):
-    results_list = [results]
-    confidences = aggregate_confidences(results_list)
-    return confidences
-
-
-def fix_model(model_name):
-    name_2_load = 'stats_mcp_entropy_all_val_0'
-    res = load_model_results(model_name, name_2_load)
-    result = fix(res)
-    assert len(result['labels']) / 50 == 15293
-    save_name = 'stats_mcp_entropy_all_val'
-    save_model_results(model_name, result, save_name)
-
-
-def gather_results(model_name, world_size, tag):
-    results_list = []
-    for r in range(world_size):
-        res = load_model_results(model_name, f'{tag}_{r}')
-        assert res is not None
-        results_list.append(res)
-
-    return results_list
-
-
 def get_embedding_size(model_name):
     # model = timm.create_model(model_name, pretrained=False)
     # return model.num_features
@@ -371,3 +335,8 @@ def MC_Dropout_Pass(x, model, dropout_iterations=30, classification=True):
 
     return {'entropy_conf': -entropy, 'label_predictions': label_predictions,
             'mutual_information': mutual_info, 'mean_p': mean}  # return all
+
+
+def aggregate_results_from_batches(results, axis=None):
+    confidences = {k: np.concatenate(v, axis=axis) for k, v in results.items()}
+    return confidences

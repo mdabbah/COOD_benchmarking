@@ -1,6 +1,5 @@
 import itertools
 import os.path
-import warnings
 import zipfile
 from typing import List
 
@@ -12,16 +11,15 @@ from utils.input_handling_utilities import get_model_name, args_dict_to_str, get
     handle_model_dict_input, get_kappa_name, sanity_check_confidence_input, CONFIDENCE_METRIC_INPUT_ERR_MSG, \
     sanity_model_input, MODEL_INPUT_ERR_MSG, check_and_fix_transforms
 from utils.data_utils import load_model_results, create_dataset_metadata, save_model_results, create_data_loader, \
-    get_dataset_num_of_classes, load_model_results_df, load_pickle, norm_paths, save_pickle, load_dataset_metadata, \
-    check_files_exist
+    get_dataset_num_of_classes, load_model_results_df, load_pickle, norm_paths, save_pickle
 import numpy as np
 
 from utils.kappa_dispatcher import get_confidence_function
 from utils.models_wrapper import MySimpleWrapper
-from utils.project_paths import get_paper_results_base_path, get_datasets_metadata_base_path
+from utils.project_paths import get_datasets_metadata_base_path
 from utils.severity_estimation_utils import calc_per_class_severity, get_severity_levels_groups_of_classes
-from utils.misc import create_model_and_transforms_OOD, log_ood_results, default_transform, \
-    get_default_transform_with_open
+from utils.misc import create_model_and_transforms_OOD, log_ood_results, get_default_transform_with_open, \
+    aggregate_results_from_batches
 from utils.uncertainty_metrics import calc_OOD_metrics
 
 
@@ -72,11 +70,6 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
 
     del model
     return results
-
-
-def aggregate_results_from_batches(results, axis=None):
-    confidences = {k: np.concatenate(v, axis=axis) for k, v in results.items()}
-    return confidences
 
 
 def get_cood_benchmarking_datasets(model, confidence_function='softmax_conf', confidence_args=None,
@@ -133,13 +126,7 @@ def get_cood_benchmarking_datasets(model, confidence_function='softmax_conf', co
     return severity_levels_info
 
 
-## one api higher
-# def get_paper_results
-# function to plot the graphs
-# one liner for one model or multiple models
-# leadership board
-
-def benchmark_list_inputs(models_list, confidence_metrics_list, *args):
+def _benchmark_list_inputs(models_list, confidence_metrics_list, *args):
     if not isinstance(models_list, list):
         models_list = [models_list]
 
@@ -162,9 +149,9 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
                                             batch_size=64,
                                             num_workers=2, rank=0, force_run=False, confidence_key='confidences'):
     if isinstance(model, list) or isinstance(confidence_function, list):
-        return benchmark_list_inputs(model, confidence_function, confidence_args, cood_dataset_info, id_dataset_info,
-                                     num_severity_levels, levels_to_benchmark, batch_size, num_workers, rank, force_run,
-                                     confidence_key)
+        return _benchmark_list_inputs(model, confidence_function, confidence_args, cood_dataset_info, id_dataset_info,
+                                      num_severity_levels, levels_to_benchmark, batch_size, num_workers, rank, force_run,
+                                      confidence_key)
 
     assert sanity_check_confidence_input(confidence_function), CONFIDENCE_METRIC_INPUT_ERR_MSG
     assert sanity_model_input(model), MODEL_INPUT_ERR_MSG
@@ -274,11 +261,11 @@ def get_paper_ood_dataset_info(path_to_full_imagenet21k, skip_scan=False, exclud
 
     new_dataset_name = 'paper_default_ood_dataset_v.4.0'
 
-    dataset_info = fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir=path_to_full_imagenet21k,
-                                                        metadata_path=metadata_path,
-                                                        new_dataset_name=new_dataset_name,
-                                                        stitch_keyword='fall11_whole/',
-                                                        skip_scan=skip_scan)
+    dataset_info = _fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir=path_to_full_imagenet21k,
+                                                         metadata_path=metadata_path,
+                                                         new_dataset_name=new_dataset_name,
+                                                         stitch_keyword='fall11_whole/',
+                                                         skip_scan=skip_scan)
     dataset_info['test_estimation_split_percentage'] = 0.25
 
     return dataset_info
@@ -290,17 +277,17 @@ def get_paper_id_dataset_info(path_to_full_imagenet1k, skip_scan=False):
 
     new_dataset_name = 'paper_default_id_dataset_v.4.0'
 
-    dataset_info = fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir=path_to_full_imagenet1k,
-                                                        metadata_path=metadata_path,
-                                                        new_dataset_name=new_dataset_name,
-                                                        stitch_keyword='LSVRC2012_img_val/',
-                                                        skip_scan=skip_scan)
+    dataset_info = _fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir=path_to_full_imagenet1k,
+                                                         metadata_path=metadata_path,
+                                                         new_dataset_name=new_dataset_name,
+                                                         stitch_keyword='LSVRC2012_img_val/',
+                                                         skip_scan=skip_scan)
 
     return dataset_info
 
 
-def fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir, metadata_path,
-                                         new_dataset_name, stitch_keyword, skip_scan):
+def _fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir, metadata_path,
+                                          new_dataset_name, stitch_keyword, skip_scan):
     datasets_metadata_base_path = get_datasets_metadata_base_path()
     if not os.path.exists(metadata_path):
         path_to_zip_file = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata',
@@ -319,7 +306,7 @@ def fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir, metadata_path,
         new_dataset_metadata = load_pickle(new_metadata_path)
         images_base_dir = new_dataset_metadata['dataset_base_folder']
         if images_base_dir == new_dataset_base_dir:
-            ## no need to fix or scan
+            # no need to fix or scan
             return {'dataset_name': new_dataset_name, 'images_base_folder': new_dataset_base_dir}
 
     image_files = dataset_metadata['image_files']
