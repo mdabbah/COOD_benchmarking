@@ -13,3 +13,4 @@ pyyaml
 tqdm
 scikit-learn
 progressbar
+kaleido
