@@ -169,7 +169,7 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
 
     results_file_tag = f'{kappa_name}{confidence_args_str}_n{num_severity_levels}'
 
-    results_subdir_name = os.path.join(model, f'{cood_dataset_name}-{id_dataset_name}')
+    results_subdir_name = os.path.join(model_name, f'{cood_dataset_name}-{id_dataset_name}')
 
     model_results = load_model_results_df(results_subdir_name, f'{model_name}_{results_file_tag}.csv')
     if levels_to_benchmark == 'all':
