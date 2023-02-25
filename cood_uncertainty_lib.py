@@ -74,7 +74,8 @@ def apply_model_function_on_dataset_samples(rank, model, datasets, datasets_subs
 
 def get_cood_benchmarking_datasets(model, confidence_function='softmax_conf', confidence_args=None,
                                    cood_dataset_info='default', num_severity_levels=11, num_id_classes=1000,
-                                   batch_size=64, num_workers=2, rank=0, force_run=False, confidence_key='confidences'):
+                                   batch_size=64, num_workers=2, rank=0, force_run=False, confidence_key='confidences',
+                                   results_subdir_name=None):
     assert sanity_check_confidence_input(confidence_function), CONFIDENCE_METRIC_INPUT_ERR_MSG
     assert sanity_model_input(model), MODEL_INPUT_ERR_MSG
 
@@ -85,7 +86,8 @@ def get_cood_benchmarking_datasets(model, confidence_function='softmax_conf', co
     cood_dataset_name = get_dataset_name(cood_dataset_info)  # ImageNet_20K
     create_dataset_metadata(cood_dataset_info)
 
-    results_subdir_name = os.path.join(model_name, f'{cood_dataset_name}')
+    if results_subdir_name is None:
+        results_subdir_name = os.path.join(model_name, f'{cood_dataset_name}')
 
     severity_levels_info_file_tag = f'severity_levels_info_n{num_severity_levels}_' \
                                     f'{confidence_metric_name}_{confidence_key}{confidence_args_str}'
@@ -150,7 +152,8 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
                                             num_workers=2, rank=0, force_run=False, confidence_key='confidences'):
     if isinstance(model, list) or isinstance(confidence_function, list):
         return _benchmark_list_inputs(model, confidence_function, confidence_args, cood_dataset_info, id_dataset_info,
-                                      num_severity_levels, levels_to_benchmark, batch_size, num_workers, rank, force_run,
+                                      num_severity_levels, levels_to_benchmark, batch_size, num_workers, rank,
+                                      force_run,
                                       confidence_key)
 
     assert sanity_check_confidence_input(confidence_function), CONFIDENCE_METRIC_INPUT_ERR_MSG
@@ -190,7 +193,8 @@ def benchmark_model_on_cood_with_severities(model, confidence_function='softmax'
                                                           num_severity_levels=num_severity_levels,
                                                           num_id_classes=num_id_classes,
                                                           batch_size=batch_size, num_workers=num_workers, rank=rank,
-                                                          force_run=force_run, confidence_key=confidence_key)
+                                                          force_run=force_run, confidence_key=confidence_key,
+                                                          results_subdir_name=results_subdir_name)
 
     # get cood datasets classes
     cood_classes = severity_levels_info['severity_levels_groups']
