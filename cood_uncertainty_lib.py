@@ -257,13 +257,22 @@ def get_paper_results(model_name: [str, None, List] = None,
 
 def get_paper_ood_dataset_info(path_to_full_imagenet21k, skip_scan=False, exclude_biologically_distinct_classes=False,
                                exclude_visually_ambiguous_objects=True):
-    if exclude_biologically_distinct_classes or not exclude_visually_ambiguous_objects:
-        raise ValueError('not supported yet')
+
+    if exclude_visually_ambiguous_objects and not exclude_biologically_distinct_classes:
+        dataset_name = 'IMAGENET_20k_paper_original'  # aka visually_ambiguous_objects only
+
+    if exclude_visually_ambiguous_objects and exclude_biologically_distinct_classes:
+        dataset_name = 'IMAGENET_20k_exclude_all'
+
+    if not exclude_visually_ambiguous_objects and exclude_biologically_distinct_classes:
+        dataset_name = 'IMAGENET_20k_exclude_biologically_different'
+    else:
+        dataset_name = 'IMAGENET_20k_include_both'
 
     datasets_metadata_base_path = get_datasets_metadata_base_path()
-    metadata_path = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', 'IMAGENET_20k_METADATA.pkl')
+    metadata_path = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata', f'{dataset_name}.pkl')
 
-    new_dataset_name = 'paper_default_ood_dataset_v.4.0'
+    new_dataset_name = f'{dataset_name}_ood_dataset_v.4.0'
 
     dataset_info = _fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir=path_to_full_imagenet21k,
                                                          metadata_path=metadata_path,
@@ -295,7 +304,7 @@ def _fix_prebuilt_dataset_meta_data_paths(new_dataset_base_dir, metadata_path,
     datasets_metadata_base_path = get_datasets_metadata_base_path()
     if not os.path.exists(metadata_path):
         path_to_zip_file = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata',
-                                        'datasets_metadata_v4.zip')
+                                        'datasets_metadata_v4.1.zip')
         directory_to_extract_to = os.path.join(datasets_metadata_base_path, 'paper_prebuilt_metadata')
 
         with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
