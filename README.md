@@ -22,9 +22,9 @@ https://technionmail-my.sharepoint.com/:f:/g/personal/mdabbah_technion_ac_il/Enq
 Concatenate the dataset zip parts into a single tar file and extract it to a directory of your choice using the following commands:
 
 ```
-cat dataset.parta* > dataset.tar  						## This command concatenates the dataset parts together.
-tar -xzvf dataset.tar.gz -C </path/to/directory/>     ## This command extracts the dataset to a given directory.
-unzip missing_files.zip -d </path/to/directory>         ## This command adds 46 missing files from our original tar file.
+cat dataset.parta* > dataset.tar                     ## This command concatenates the dataset parts together.
+tar -xzvf dataset.tar.gz -C </path/to/directory/>    ## This command extracts the dataset to a given directory.
+unzip missing_files.zip -d </path/to/directory>      ## This command adds 46 missing files from our original tar file.
 ```
 
 After executing these commands, you will find a directory called "imagenet_11k" in the location specified by `</path/to/directory/>`.
