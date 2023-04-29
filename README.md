@@ -31,7 +31,7 @@ unzip missing_files.zip -d </path/to/directory>      ## This command adds 46 mis
 
 After executing these commands, you will find a directory called "imagenet_11k" in the location specified by `</path/to/directory/>`.
 
-After downloading and extracting the dataset, use our method get_paper_ood_dataset_info to build a dataset metadata object that's used for dataset loading in our implementation (see example.ipynb for usage examples). 
+After downloading and extracting the dataset, use our method `get_paper_ood_dataset_info` to build a dataset metadata object that's used for dataset loading in our implementation (see example.ipynb for usage examples). 
 Make sure to pass the path to the dataset as </path/to/directory>/imagenet_11k. 
 You can use the skip_scan parameter to check for missing files in your copy by setting it to 'False'.
 
