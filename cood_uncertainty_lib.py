@@ -4,6 +4,8 @@ import zipfile
 from typing import List
 
 import pandas as pd
+import torch
+torch.multiprocessing.set_sharing_strategy('file_system')
 import torch.nn
 from tqdm import tqdm
 
