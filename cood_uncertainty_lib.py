@@ -259,7 +259,7 @@ def get_paper_ood_dataset_info(path_to_full_imagenet21k, skip_scan=False, exclud
                                exclude_visually_ambiguous_objects=True):
 
     if exclude_visually_ambiguous_objects and not exclude_biologically_distinct_classes:
-        dataset_name = 'IMAGENET_20k_paper_original'  # aka visually_ambiguous_objects only
+        dataset_name = 'IMAGENET_20k_paper_original'  # aka exclude visually_ambiguous_objects only
 
     elif exclude_visually_ambiguous_objects and exclude_biologically_distinct_classes:
         dataset_name = 'IMAGENET_20k_exclude_all'
