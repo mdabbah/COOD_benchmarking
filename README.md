@@ -19,7 +19,7 @@ https://paperswithcode.com/sota/classification-on-imagenet-c-ood-class-out-of
 If you want to use our filtered version of the ImageNet-21k dataset, you can either download the entire ImageNet-21k dataset and follow our example in the "Using our benchmark with ImageNet" chapter of example.ipynb to transform it into our filtered version, or you can simply follow the instructions below to only download our filtered version:
 
 To download our filtered dataset, please access the file parts at the following link:
-https://technionmail-my.sharepoint.com/:f:/g/personal/mdabbah_technion_ac_il/Enq4_ikDQzVIlsMlc3toIvsBMfukjl_ocs2AKsDirAa00A?e=eAXV8F
+https://technionmail-my.sharepoint.com/:f:/g/personal/mdabbah_alumni_technion_ac_il/Enq4_ikDQzVIlsMlc3toIvsBMfukjl_ocs2AKsDirAa00A
 
 Concatenate the dataset zip parts into a single tar file and extract it to a directory of your choice using the following commands:
 
